@@ -1,0 +1,20 @@
+name: lunar_calendar_example
+description: Example for Lunar Calendar package
+publish_to: 'none'
+
+environment:
+  sdk: '>=3.0.0 <4.0.0'
+
+dependencies:
+  flutter:
+    sdk: flutter
+  lunar_calendar:
+    path: ../ 
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^2.0.0
+
+flutter:
+  uses-material-design: true 

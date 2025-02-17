@@ -1,0 +1,22 @@
+name: lunar_calendar
+description: A Flutter package for lunar calendar with event management and holiday display
+version: 1.0.0
+homepage: https://github.com/Nghi-NV/lunar_calendar
+
+environment:
+  sdk: ">=2.17.0 <4.0.0"
+  flutter: ">=2.5.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+  intl: ^0.18.0
+  shared_preferences: ^2.2.0
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^2.0.0
+
+flutter:
+  uses-material-design: true
