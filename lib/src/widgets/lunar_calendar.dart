@@ -52,10 +52,14 @@ class LunarCalendar extends StatefulWidget {
   State<LunarCalendar> createState() => _LunarCalendarState();
 }
 
-class _LunarCalendarState extends State<LunarCalendar> {
+class _LunarCalendarState extends State<LunarCalendar>
+    with SingleTickerProviderStateMixin {
   late DateTime _selectedDate;
   late DateTime _displayedMonth;
   late CalendarView _currentView;
+  late AnimationController _animationController;
+  late Animation<Offset> _slideAnimation;
+  bool _isAnimating = false;
 
   @override
   void initState() {
@@ -63,6 +67,92 @@ class _LunarCalendarState extends State<LunarCalendar> {
     _selectedDate = DateTime.now();
     _displayedMonth = DateTime(_selectedDate.year, _selectedDate.month);
     _currentView = CalendarView.month;
+
+    _animationController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 300),
+    );
+
+    _slideAnimation = Tween<Offset>(
+      begin: const Offset(0, 0),
+      end: const Offset(-1, 0),
+    ).animate(CurvedAnimation(
+      parent: _animationController,
+      curve: Curves.easeInOut,
+    ));
+  }
+
+  @override
+  void dispose() {
+    _animationController.dispose();
+    super.dispose();
+  }
+
+  void _onHorizontalDragEnd(DragEndDetails details) {
+    if (_isAnimating) return;
+
+    final velocity = details.primaryVelocity ?? 0;
+    if (velocity.abs() < 200) return; // Ignore slow swipes
+
+    if (velocity < 0) {
+      // Swipe left -> next month
+      _nextMonth();
+    } else {
+      // Swipe right -> previous month
+      _previousMonth();
+    }
+  }
+
+  Future<void> _nextMonth() async {
+    if (_isAnimating) return;
+    _isAnimating = true;
+
+    // Setup animation for next month
+    _slideAnimation = Tween<Offset>(
+      begin: const Offset(0, 0),
+      end: const Offset(-1, 0),
+    ).animate(CurvedAnimation(
+      parent: _animationController,
+      curve: Curves.easeInOut,
+    ));
+
+    await _animationController.forward();
+
+    setState(() {
+      _displayedMonth = DateTime(
+        _displayedMonth.year,
+        _displayedMonth.month + 1,
+      );
+    });
+
+    _animationController.reset();
+    _isAnimating = false;
+  }
+
+  Future<void> _previousMonth() async {
+    if (_isAnimating) return;
+    _isAnimating = true;
+
+    // Setup animation for previous month
+    _slideAnimation = Tween<Offset>(
+      begin: const Offset(0, 0),
+      end: const Offset(1, 0),
+    ).animate(CurvedAnimation(
+      parent: _animationController,
+      curve: Curves.easeInOut,
+    ));
+
+    await _animationController.forward();
+
+    setState(() {
+      _displayedMonth = DateTime(
+        _displayedMonth.year,
+        _displayedMonth.month - 1,
+      );
+    });
+
+    _animationController.reset();
+    _isAnimating = false;
   }
 
   @override
@@ -84,7 +174,11 @@ class _LunarCalendarState extends State<LunarCalendar> {
             theme: theme,
             localization: localization,
             onMonthChanged: (date) {
-              setState(() => _displayedMonth = date);
+              if (date.isBefore(_displayedMonth)) {
+                _previousMonth();
+              } else {
+                _nextMonth();
+              }
             },
             onViewChanged: (view) {
               setState(() => _currentView = view);
@@ -100,10 +194,17 @@ class _LunarCalendarState extends State<LunarCalendar> {
 
           if (_currentView.isMonth) _buildWeekdayHeader(theme, localization),
 
-          // Calendar grid
-          _currentView.isMonth
-              ? _buildMonthView(theme, localization)
-              : _buildYearView(theme, localization),
+          // Calendar grid with gesture detection
+          if (_currentView.isMonth)
+            GestureDetector(
+              onHorizontalDragEnd: _onHorizontalDragEnd,
+              child: SlideTransition(
+                position: _slideAnimation,
+                child: _buildMonthView(theme, localization),
+              ),
+            )
+          else
+            _buildYearView(theme, localization),
 
           // Event section at bottom
           if (widget.events.isNotEmpty)
@@ -237,6 +338,7 @@ class _LunarCalendarState extends State<LunarCalendar> {
         mainAxisSpacing: 8,
         crossAxisSpacing: 8,
       ),
+      shrinkWrap: true,
       itemCount: months.length,
       itemBuilder: (context, index) {
         final month = months[index];
