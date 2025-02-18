@@ -9,31 +9,17 @@ import '../utils/event_utils.dart';
 import '../utils/lunar_utils.dart';
 import 'calendar_header.dart';
 import 'day_cell.dart';
-import 'event_dialog.dart';
 
 class LunarCalendar extends StatefulWidget {
-  /// Theme của calendar
   final LunarCalendarTheme? theme;
 
-  /// Ngôn ngữ của calendar
   final LunarCalendarLocalization? localization;
 
-  /// Callback khi chọn ngày
   final ValueChanged<DateTime>? onDateSelected;
-
-  /// Callback khi thêm sự kiện
-  final ValueChanged<LunarEvent>? onEventAdded;
-
-  /// Callback khi sửa sự kiện
-  final ValueChanged<LunarEvent>? onEventEdited;
-
-  /// Callback khi xóa sự kiện
-  final ValueChanged<LunarEvent>? onEventDeleted;
 
   /// Có hiển thị ngày của tháng khác không
   final bool? showOutsideDays;
 
-  /// Danh sách sự kiện cố định
   final List<LunarEvent> events;
 
   final double? maxWidth;
@@ -43,11 +29,8 @@ class LunarCalendar extends StatefulWidget {
     this.theme,
     this.localization,
     this.onDateSelected,
-    this.onEventAdded,
-    this.onEventEdited,
-    this.onEventDeleted,
     this.showOutsideDays,
-    this.events = const [], // Default empty list
+    this.events = const [],
     this.maxWidth,
   });
 
@@ -112,6 +95,9 @@ class _LunarCalendarState extends State<LunarCalendar> {
       color: theme.backgroundColor,
       child: LayoutBuilder(builder: (context, constraints) {
         final maxWidth = widget.maxWidth ?? constraints.maxWidth;
+        final heightOfCell =
+            (theme.fontSize + theme.subtextFontSize) * 1.25 + 10;
+        final calendarHeight = 5 * heightOfCell + 5 * 8;
 
         return Column(
           children: [
@@ -144,42 +130,33 @@ class _LunarCalendarState extends State<LunarCalendar> {
               },
             ),
 
-            if (_currentView.isMonth)
+            if (_currentView.isMonth) ...[
               _buildWeekdayHeader(theme, localization, maxWidth),
-
-            // Calendar grid with PageView
-            if (_currentView.isMonth)
-              Builder(builder: (context) {
-                final heightOfCell =
-                    (theme.fontSize + theme.subtextFontSize) * 1.25 + 10;
-                final calendarHeight = 5 * heightOfCell + 5 * 8;
-
-                return Container(
-                  height: calendarHeight,
-                  constraints: BoxConstraints(maxWidth: maxWidth),
-                  child: PageView.builder(
-                    controller: _pageController,
-                    scrollDirection: Axis.vertical,
-                    onPageChanged: (page) {
-                      setState(() {
-                        _displayedMonth = _getMonthForPage(page);
-                      });
-                    },
-                    itemBuilder: (context, page) {
-                      final month = _getMonthForPage(page);
-                      return _buildMonthView(
-                        theme,
-                        localization,
-                        month,
-                        maxWidth,
-                        calendarHeight,
-                        heightOfCell,
-                      );
-                    },
-                  ),
-                );
-              })
-            else
+              Container(
+                height: calendarHeight,
+                constraints: BoxConstraints(maxWidth: maxWidth),
+                child: PageView.builder(
+                  controller: _pageController,
+                  scrollDirection: Axis.vertical,
+                  onPageChanged: (page) {
+                    setState(() {
+                      _displayedMonth = _getMonthForPage(page);
+                    });
+                  },
+                  itemBuilder: (context, page) {
+                    final month = _getMonthForPage(page);
+                    return _buildMonthView(
+                      theme,
+                      localization,
+                      month,
+                      maxWidth,
+                      calendarHeight,
+                      heightOfCell,
+                    );
+                  },
+                ),
+              ),
+            ] else
               _buildYearView(theme, localization),
 
             // Event section
@@ -390,166 +367,6 @@ class _LunarCalendarState extends State<LunarCalendar> {
   void _onDateTapped(DateTime date) {
     setState(() => _selectedDate = date);
     widget.onDateSelected?.call(date);
-  }
-
-  Future<void> _showEventDialog(DateTime date, [LunarEvent? event]) async {
-    final result = await showDialog<LunarEvent>(
-      context: context,
-      builder: (context) => EventDialog(
-        date: date,
-        event: event,
-        theme: widget.theme ?? LunarCalendarTheme.fromTheme(Theme.of(context)),
-        localization: widget.localization ?? LunarCalendarLocalization.vi,
-      ),
-    );
-
-    if (result != null) {
-      setState(() {
-        if (event != null) {
-          // Edit event
-          widget.events.remove(event);
-          widget.events.add(result);
-          widget.onEventEdited?.call(result);
-        } else {
-          // Add new event
-          widget.events.add(result);
-          widget.onEventAdded?.call(result);
-        }
-        EventUtils.saveEvents(widget.events);
-      });
-    }
-  }
-
-  Future<void> _showEventList(DateTime date, List<LunarEvent> events) async {
-    final theme =
-        widget.theme ?? LunarCalendarTheme.fromTheme(Theme.of(context));
-    final localization = widget.localization ?? LunarCalendarLocalization.vi;
-
-    await showModalBottomSheet(
-      context: context,
-      backgroundColor: theme.backgroundColor,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(
-          top: Radius.circular(theme.borderRadius),
-        ),
-      ),
-      builder: (context) => Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          // Header
-          Padding(
-            padding: const EdgeInsets.all(16),
-            child: Row(
-              children: [
-                Text(
-                  DateUtils.formatDate(date),
-                  style: TextStyle(
-                    color: theme.textColor,
-                    fontSize: theme.fontSize * 1.2,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                const Spacer(),
-                IconButton(
-                  icon: const Icon(Icons.add),
-                  color: theme.primaryColor,
-                  onPressed: () {
-                    Navigator.pop(context);
-                    _showEventDialog(date);
-                  },
-                ),
-              ],
-            ),
-          ),
-
-          // Event list
-          ListView.builder(
-            shrinkWrap: true,
-            padding: const EdgeInsets.symmetric(horizontal: 16),
-            itemCount: events.length,
-            itemBuilder: (context, index) {
-              final event = events[index];
-              return ListTile(
-                title: Text(
-                  event.title,
-                  style: TextStyle(color: theme.textColor),
-                ),
-                subtitle: event.description?.isNotEmpty == true
-                    ? Text(
-                        event.description!,
-                        style: TextStyle(color: theme.subtextColor),
-                      )
-                    : null,
-                trailing: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    IconButton(
-                      icon: const Icon(Icons.edit),
-                      color: theme.primaryColor,
-                      onPressed: () {
-                        Navigator.pop(context);
-                        _showEventDialog(date, event);
-                      },
-                    ),
-                    IconButton(
-                      icon: const Icon(Icons.delete),
-                      color: theme.primaryColor,
-                      onPressed: () => _showDeleteConfirmation(event),
-                    ),
-                  ],
-                ),
-              );
-            },
-          ),
-        ],
-      ),
-    );
-  }
-
-  Future<void> _showDeleteConfirmation(LunarEvent event) async {
-    final theme =
-        widget.theme ?? LunarCalendarTheme.fromTheme(Theme.of(context));
-    final localization = widget.localization ?? LunarCalendarLocalization.vi;
-
-    final confirmed = await showDialog<bool>(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: Text(
-          localization.get('delete_event'),
-          style: TextStyle(color: theme.textColor),
-        ),
-        content: Text(
-          localization.get('confirm_delete'),
-          style: TextStyle(color: theme.textColor),
-        ),
-        backgroundColor: theme.backgroundColor,
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context, false),
-            style: TextButton.styleFrom(
-              foregroundColor: theme.subtextColor,
-            ),
-            child: Text(localization.get('cancel')),
-          ),
-          TextButton(
-            onPressed: () => Navigator.pop(context, true),
-            style: TextButton.styleFrom(
-              foregroundColor: theme.primaryColor,
-            ),
-            child: Text(localization.get('delete_event')),
-          ),
-        ],
-      ),
-    );
-
-    if (confirmed == true) {
-      setState(() {
-        widget.events.remove(event);
-        EventUtils.saveEvents(widget.events);
-        widget.onEventDeleted?.call(event);
-      });
-      if (mounted) Navigator.pop(context); // Close event list
-    }
   }
 
   Widget _buildNavButton({required String text, required Color color}) {

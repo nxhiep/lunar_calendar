@@ -49,35 +49,141 @@ class CalendarHeader extends StatelessWidget {
       width: maxWidth,
       child: Row(
         children: [
-          // Back button & Year
-          GestureDetector(
-            onTap: () => onViewChanged?.call(currentView.next()),
+          // Nút chọn tháng
+          InkWell(
+            onTap: () => _showMonthPicker(context),
             child: Row(
               children: [
-                Icon(Icons.arrow_back_ios, color: theme.primaryColor, size: 16),
                 Text(
-                  displayedMonth.year.toString(),
-                  style: TextStyle(
-                    color: theme.primaryColor,
-                    fontSize: theme.fontSize,
+                  DateUtils.monthName(
+                    displayedMonth,
+                    localization: localization,
                   ),
+                  style: TextStyle(
+                    color: theme.textColor,
+                    fontSize: theme.fontSize,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                Icon(
+                  Icons.arrow_drop_down,
+                  color: theme.textColor,
                 ),
               ],
             ),
           ),
+
+          const SizedBox(width: 8),
+
+          // Nút chọn năm
+          InkWell(
+            onTap: () => _showYearPicker(context),
+            child: Row(
+              children: [
+                Text(
+                  displayedMonth.year.toString(),
+                  style: TextStyle(
+                    color: theme.textColor,
+                    fontSize: theme.fontSize,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                Icon(
+                  Icons.arrow_drop_down,
+                  color: theme.textColor,
+                ),
+              ],
+            ),
+          ),
+
           const Spacer(),
 
-          // Month
-          Text(
-            DateUtils.monthName(displayedMonth, localization: localization),
-            style: TextStyle(
-              color: theme.textColor,
-              fontSize: theme.fontSize * 1.2,
-              fontWeight: FontWeight.bold,
+          // Nút Today
+          TextButton(
+            onPressed: onTodayPressed,
+            style: TextButton.styleFrom(
+              foregroundColor: theme.primaryColor,
             ),
+            child: Text(localization.get('today')),
           ),
         ],
       ),
+    );
+  }
+
+  void _showMonthPicker(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: theme.backgroundColor,
+      builder: (context) {
+        return Container(
+          height: 300,
+          child: GridView.builder(
+            padding: const EdgeInsets.all(16),
+            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+              crossAxisCount: 3,
+              childAspectRatio: 2,
+            ),
+            itemCount: 12,
+            itemBuilder: (context, index) {
+              final month = DateTime(displayedMonth.year, index + 1);
+              final isSelected = month.month == displayedMonth.month;
+
+              return InkWell(
+                onTap: () {
+                  Navigator.pop(context);
+                  onMonthChanged?.call(month);
+                },
+                child: Container(
+                  alignment: Alignment.center,
+                  decoration: BoxDecoration(
+                    color: isSelected ? theme.selectedDayColor : null,
+                    borderRadius: BorderRadius.circular(theme.borderRadius),
+                  ),
+                  child: Text(
+                    DateUtils.monthName(
+                      month,
+                      localization: localization,
+                      short: true,
+                    ),
+                    style: TextStyle(
+                      color: isSelected
+                          ? theme.selectedDayTextColor
+                          : theme.textColor,
+                      fontSize: theme.fontSize,
+                    ),
+                  ),
+                ),
+              );
+            },
+          ),
+        );
+      },
+    );
+  }
+
+  void _showYearPicker(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (context) {
+        return Dialog(
+          backgroundColor: theme.backgroundColor,
+          child: Container(
+            width: 300,
+            height: 400,
+            padding: const EdgeInsets.all(16),
+            child: YearPicker(
+              firstDate: DateTime(1900),
+              lastDate: DateTime(2100),
+              selectedDate: displayedMonth,
+              onChanged: (date) {
+                Navigator.pop(context);
+                onMonthChanged?.call(date);
+              },
+            ),
+          ),
+        );
+      },
     );
   }
 
