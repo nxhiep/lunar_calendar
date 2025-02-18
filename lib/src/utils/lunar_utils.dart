@@ -132,12 +132,12 @@ class LunarUtils {
     int lunarDay = dayNumber - monthStart + 1;
     int diff = ((monthStart - a11) / 29.530588853).floor();
     int lunarLeap = 0;
-    int lunarMonth = diff + 11;
+    int lunarMonth = diff + 12;
 
     if (b11 - a11 > 365) {
       int leapMonthDiff = _getLeapMonthOffset(a11, timeZone);
       if (diff >= leapMonthDiff) {
-        lunarMonth = diff + 10;
+        lunarMonth = diff + 11;
         if (diff == leapMonthDiff) {
           lunarLeap = 1;
         }
