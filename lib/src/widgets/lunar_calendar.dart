@@ -381,13 +381,6 @@ class _LunarCalendarState extends State<LunarCalendar> {
                 ),
               ),
             ),
-            Text(
-              localization.get('all_day'),
-              style: TextStyle(
-                color: theme.subtextColor,
-                fontSize: theme.subtextFontSize,
-              ),
-            ),
           ],
         ),
       ),
