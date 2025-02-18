@@ -38,6 +38,19 @@ class DayCell extends StatelessWidget {
     this.events = const [],
   });
 
+  bool checkNeedShowMonth() {
+    final isFirstDayOfLunarMonth = lunarDate.day == 1;
+    if (theme.showOutsideDays) {
+      if (isFirstDayOfLunarMonth) {
+        return true;
+      }
+      return false;
+    }
+
+    final isFirstDayOfSolarMonth = date.day == 1;
+    return isFirstDayOfSolarMonth || isFirstDayOfLunarMonth;
+  }
+
   @override
   Widget build(BuildContext context) {
     final isSelected =
@@ -46,15 +59,11 @@ class DayCell extends StatelessWidget {
     final isWeekend = DateUtils.isWeekend(date);
     final isGoodDay = LunarUtils.isGoodDay(date);
 
-    // Ẩn ngày nếu không hiển thị ngày ngoài tháng
     if (!isCurrentMonth && !theme.showOutsideDays) {
       return Container();
     }
 
-    // Kiểm tra có phải ngày đầu tháng (dương hoặc âm)
-    final isFirstDayOfSolarMonth = date.day == 1;
-    final isFirstDayOfLunarMonth = lunarDate.day == 1;
-    final shouldShowMonth = isFirstDayOfSolarMonth || isFirstDayOfLunarMonth;
+    final shouldShowMonth = checkNeedShowMonth();
 
     return InkWell(
       onTap: isCurrentMonth || theme.showOutsideDays
@@ -72,15 +81,20 @@ class DayCell extends StatelessWidget {
                 Container(
                   width: 28,
                   height: 28,
-                  decoration: isSelected
-                      ? BoxDecoration(
-                          color: Colors.white,
-                          shape: BoxShape.circle,
-                        )
-                      : null,
+                  decoration: BoxDecoration(
+                    color: isSelected ? theme.selectedDayColor : null,
+                    shape: BoxShape.circle,
+                    border: isToday
+                        ? Border.all(
+                            color: theme.todayTextColor,
+                            width: 1,
+                          )
+                        : null,
+                  ),
                   child: Center(
                     child: Text(
                       date.day.toString(),
+                      textAlign: TextAlign.center,
                       style: TextStyle(
                         color: _getTextColor(isSelected, isToday, isWeekend),
                         fontSize: theme.fontSize,
@@ -105,12 +119,14 @@ class DayCell extends StatelessWidget {
             // Chỉ báo sự kiện
             if (events.isNotEmpty)
               Positioned(
-                bottom: 0,
+                bottom: theme.subtextFontSize + (isSelected ? 3 : 6),
                 child: Container(
                   width: 4,
                   height: 4,
                   decoration: BoxDecoration(
-                    color: isSelected ? Colors.black : theme.eventColor,
+                    color: !isCurrentMonth
+                        ? theme.eventColor.withOpacity(0.5)
+                        : theme.eventColor,
                     shape: BoxShape.circle,
                   ),
                 ),
@@ -123,7 +139,7 @@ class DayCell extends StatelessWidget {
 
   Color _getTextColor(bool isSelected, bool isToday, bool isWeekend) {
     if (!isCurrentMonth) return theme.outsideDayColor;
-    if (isSelected) return Colors.black; // Màu đen cho text khi được chọn
+    if (isSelected) return theme.selectedDayTextColor;
     if (isWeekend) return theme.weekendColor;
     if (isToday) return theme.todayTextColor;
     return theme.textColor;
@@ -131,7 +147,7 @@ class DayCell extends StatelessWidget {
 
   Color _getSubtextColor(bool isSelected) {
     if (!isCurrentMonth) return theme.outsideDayColor;
-    if (isSelected) return theme.selectedDayTextColor;
+    if (isSelected) return theme.selectedDaySubtextColor;
     return theme.subtextColor;
   }
 }

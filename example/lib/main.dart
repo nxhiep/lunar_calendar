@@ -5,13 +5,27 @@ void main() {
   runApp(const MyApp());
 }
 
-class MyApp extends StatelessWidget {
+class MyApp extends StatefulWidget {
   const MyApp({super.key});
+
+  @override
+  State<MyApp> createState() => _MyAppState();
+}
+
+class _MyAppState extends State<MyApp> {
+  ThemeMode _themeMode = ThemeMode.light;
+
+  void _toggleThemeMode() {
+    setState(() {
+      _themeMode =
+          _themeMode == ThemeMode.light ? ThemeMode.dark : ThemeMode.light;
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Lunar Calendar Example',
+      title: 'Calendar Example',
       theme: ThemeData(
         primarySwatch: Colors.blue,
         brightness: Brightness.light,
@@ -20,13 +34,24 @@ class MyApp extends StatelessWidget {
         primarySwatch: Colors.blue,
         brightness: Brightness.dark,
       ),
-      home: const MyHomePage(),
+      themeMode: _themeMode,
+      home: MyHomePage(
+        onThemeChanged: _toggleThemeMode,
+        isDarkMode: _themeMode == ThemeMode.dark,
+      ),
     );
   }
 }
 
 class MyHomePage extends StatefulWidget {
-  const MyHomePage({super.key});
+  final VoidCallback onThemeChanged;
+  final bool isDarkMode;
+
+  const MyHomePage({
+    super.key,
+    required this.onThemeChanged,
+    required this.isDarkMode,
+  });
 
   @override
   State<MyHomePage> createState() => _MyHomePageState();
@@ -39,9 +64,14 @@ class _MyHomePageState extends State<MyHomePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Lunar Calendar Example'),
+        title: const Text('Calendar Example'),
         actions: [
-          // Nút chuyển đổi ngôn ngữ
+          // Switch theme
+          IconButton(
+            icon: Icon(widget.isDarkMode ? Icons.light_mode : Icons.dark_mode),
+            onPressed: widget.onThemeChanged,
+          ),
+          // Switch language
           IconButton(
             icon: Text(_isVietnamese ? 'VI' : 'EN'),
             onPressed: () {
@@ -53,7 +83,7 @@ class _MyHomePageState extends State<MyHomePage> {
         ],
       ),
       body: LunarCalendar(
-        theme: null,
+        theme: widget.isDarkMode ? LunarCalendarTheme.dark : null,
         showOutsideDays: false,
         localization: _isVietnamese
             ? LunarCalendarLocalization.vi

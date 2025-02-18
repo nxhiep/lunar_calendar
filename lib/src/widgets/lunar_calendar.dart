@@ -52,107 +52,45 @@ class LunarCalendar extends StatefulWidget {
   State<LunarCalendar> createState() => _LunarCalendarState();
 }
 
-class _LunarCalendarState extends State<LunarCalendar>
-    with SingleTickerProviderStateMixin {
+class _LunarCalendarState extends State<LunarCalendar> {
   late DateTime _selectedDate;
   late DateTime _displayedMonth;
   late CalendarView _currentView;
-  late AnimationController _animationController;
-  late Animation<Offset> _slideAnimation;
-  bool _isAnimating = false;
+  late PageController _pageController;
+  static const _initialPage = 1200;
 
   @override
   void initState() {
     super.initState();
     _selectedDate = DateTime.now();
-    _displayedMonth = DateTime(_selectedDate.year, _selectedDate.month);
+    _displayedMonth = DateTime.now();
     _currentView = CalendarView.month;
-
-    _animationController = AnimationController(
-      vsync: this,
-      duration: const Duration(milliseconds: 300),
-    );
-
-    _slideAnimation = Tween<Offset>(
-      begin: const Offset(0, 0),
-      end: const Offset(-1, 0),
-    ).animate(CurvedAnimation(
-      parent: _animationController,
-      curve: Curves.easeInOut,
-    ));
+    _pageController = PageController(initialPage: _initialPage);
   }
 
   @override
   void dispose() {
-    _animationController.dispose();
+    _pageController.dispose();
     super.dispose();
   }
 
-  void _onHorizontalDragEnd(DragEndDetails details) {
-    if (_isAnimating) return;
-
-    final velocity = details.primaryVelocity ?? 0;
-    if (velocity.abs() < 200) return; // Ignore slow swipes
-
-    if (velocity < 0) {
-      // Swipe left -> next month
-      _nextMonth();
-    } else {
-      // Swipe right -> previous month
-      _previousMonth();
-    }
+  DateTime _getMonthForPage(int page) {
+    final monthDiff = page - _initialPage;
+    return DateTime(
+      DateTime.now().year,
+      DateTime.now().month + monthDiff,
+    );
   }
 
-  Future<void> _nextMonth() async {
-    if (_isAnimating) return;
-    _isAnimating = true;
-
-    // Setup animation for next month
-    _slideAnimation = Tween<Offset>(
-      begin: const Offset(0, 0),
-      end: const Offset(-1, 0),
-    ).animate(CurvedAnimation(
-      parent: _animationController,
-      curve: Curves.easeInOut,
-    ));
-
-    await _animationController.forward();
-
-    setState(() {
-      _displayedMonth = DateTime(
-        _displayedMonth.year,
-        _displayedMonth.month + 1,
-      );
-    });
-
-    _animationController.reset();
-    _isAnimating = false;
-  }
-
-  Future<void> _previousMonth() async {
-    if (_isAnimating) return;
-    _isAnimating = true;
-
-    // Setup animation for previous month
-    _slideAnimation = Tween<Offset>(
-      begin: const Offset(0, 0),
-      end: const Offset(1, 0),
-    ).animate(CurvedAnimation(
-      parent: _animationController,
-      curve: Curves.easeInOut,
-    ));
-
-    await _animationController.forward();
-
-    setState(() {
-      _displayedMonth = DateTime(
-        _displayedMonth.year,
-        _displayedMonth.month - 1,
-      );
-    });
-
-    _animationController.reset();
-    _isAnimating = false;
+  List<LunarEvent> _getEventsForMonth(DateTime month) {
+    return widget.events.where((event) {
+      if (event.solarDate != null) {
+        return event.solarDate!.year == month.year &&
+            event.solarDate!.month == month.month;
+      }
+      // Handle lunar date events if needed
+      return false;
+    }).toList();
   }
 
   @override
@@ -174,11 +112,14 @@ class _LunarCalendarState extends State<LunarCalendar>
             theme: theme,
             localization: localization,
             onMonthChanged: (date) {
-              if (date.isBefore(_displayedMonth)) {
-                _previousMonth();
-              } else {
-                _nextMonth();
-              }
+              final monthDiff = (date.year - _displayedMonth.year) * 12 +
+                  date.month -
+                  _displayedMonth.month;
+              _pageController.animateToPage(
+                _pageController.page!.round() + monthDiff,
+                duration: const Duration(milliseconds: 300),
+                curve: Curves.easeInOut,
+              );
             },
             onViewChanged: (view) {
               setState(() => _currentView = view);
@@ -187,64 +128,36 @@ class _LunarCalendarState extends State<LunarCalendar>
               final now = DateTime.now();
               setState(() {
                 _selectedDate = now;
-                _displayedMonth = DateTime(now.year, now.month);
+                _displayedMonth = now;
               });
+              _pageController.jumpToPage(_initialPage);
             },
           ),
 
           if (_currentView.isMonth) _buildWeekdayHeader(theme, localization),
 
-          // Calendar grid with gesture detection
+          // Calendar grid with PageView
           if (_currentView.isMonth)
-            GestureDetector(
-              onHorizontalDragEnd: _onHorizontalDragEnd,
-              child: SlideTransition(
-                position: _slideAnimation,
-                child: _buildMonthView(theme, localization),
+            Expanded(
+              child: PageView.builder(
+                controller: _pageController,
+                scrollDirection: Axis.vertical,
+                onPageChanged: (page) {
+                  setState(() {
+                    _displayedMonth = _getMonthForPage(page);
+                  });
+                },
+                itemBuilder: (context, page) {
+                  final month = _getMonthForPage(page);
+                  return _buildMonthView(theme, localization, month);
+                },
               ),
             )
           else
             _buildYearView(theme, localization),
 
-          // Event section at bottom
-          if (widget.events.isNotEmpty)
-            Container(
-              padding: const EdgeInsets.all(16),
-              decoration: BoxDecoration(
-                color: theme.backgroundColor,
-                border: Border(
-                  top: BorderSide(
-                    color: theme.primaryColor.withOpacity(0.1),
-                  ),
-                ),
-              ),
-              child: Row(
-                children: [
-                  Icon(
-                    Icons.star,
-                    color: theme.eventColor,
-                    size: 20,
-                  ),
-                  const SizedBox(width: 8),
-                  Expanded(
-                    child: Text(
-                      widget.events.first.title,
-                      style: TextStyle(
-                        color: theme.textColor,
-                        fontSize: theme.fontSize,
-                      ),
-                    ),
-                  ),
-                  Text(
-                    localization.get('all_day'),
-                    style: TextStyle(
-                      color: theme.subtextColor,
-                      fontSize: theme.subtextFontSize,
-                    ),
-                  ),
-                ],
-              ),
-            ),
+          // Event section
+          if (_currentView.isMonth) ..._buildEventSection(theme, localization),
         ],
       ),
     );
@@ -291,13 +204,14 @@ class _LunarCalendarState extends State<LunarCalendar>
   Widget _buildMonthView(
     LunarCalendarTheme theme,
     LunarCalendarLocalization localization,
+    DateTime month,
   ) {
-    final days = DateUtils.daysInMonth(_displayedMonth);
-    final rows = DateUtils.weeksInMonth(_displayedMonth);
+    final days = DateUtils.daysInMonth(month);
 
     return GridView.builder(
       padding: const EdgeInsets.all(8),
-      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+      physics: const NeverScrollableScrollPhysics(), // Disable grid scroll
+      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
         crossAxisCount: 7,
         childAspectRatio: 0.9,
         mainAxisSpacing: 8,
@@ -308,7 +222,7 @@ class _LunarCalendarState extends State<LunarCalendar>
       itemBuilder: (context, index) {
         final date = days[index];
         final lunarDate = LunarUtils.solarToLunar(date);
-        final isCurrentMonth = date.month == _displayedMonth.month;
+        final isCurrentMonth = date.month == month.month;
         final events = widget.events.where((e) => e.occursOn(date)).toList();
 
         return DayCell(
@@ -388,6 +302,54 @@ class _LunarCalendarState extends State<LunarCalendar>
         );
       },
     );
+  }
+
+  List<Widget> _buildEventSection(
+    LunarCalendarTheme theme,
+    LunarCalendarLocalization localization,
+  ) {
+    final monthEvents = _getEventsForMonth(_displayedMonth);
+    if (monthEvents.isEmpty) return [];
+
+    return [
+      Container(
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color: theme.backgroundColor,
+          border: Border(
+            top: BorderSide(
+              color: theme.primaryColor.withOpacity(0.1),
+            ),
+          ),
+        ),
+        child: Row(
+          children: [
+            Icon(
+              Icons.star,
+              color: theme.eventColor,
+              size: 20,
+            ),
+            const SizedBox(width: 8),
+            Expanded(
+              child: Text(
+                monthEvents.first.title,
+                style: TextStyle(
+                  color: theme.textColor,
+                  fontSize: theme.fontSize,
+                ),
+              ),
+            ),
+            Text(
+              localization.get('all_day'),
+              style: TextStyle(
+                color: theme.subtextColor,
+                fontSize: theme.subtextFontSize,
+              ),
+            ),
+          ],
+        ),
+      ),
+    ];
   }
 
   void _onDateTapped(DateTime date) {
@@ -562,6 +524,19 @@ class _LunarCalendarState extends State<LunarCalendar>
         color: color,
         fontSize: 14,
       ),
+    );
+  }
+
+  void _onMonthChanged(DateTime date) {
+    final monthDiff = (date.year - _displayedMonth.year) * 12 +
+        (date.month - _displayedMonth.month);
+
+    final targetPage = _pageController.page!.round() + monthDiff;
+
+    _pageController.animateToPage(
+      targetPage,
+      duration: const Duration(milliseconds: 300),
+      curve: Curves.easeInOut,
     );
   }
 }

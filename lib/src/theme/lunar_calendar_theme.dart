@@ -20,6 +20,9 @@ class LunarCalendarTheme {
   /// Màu text ngày được chọn
   final Color selectedDayTextColor;
 
+  /// Màu text ngày được chọn phụ
+  final Color selectedDaySubtextColor;
+
   /// Màu ngày hôm nay
   final Color todayColor;
 
@@ -59,10 +62,11 @@ class LunarCalendarTheme {
   const LunarCalendarTheme({
     this.primaryColor = const Color(0xFF1976D2),
     this.backgroundColor = Colors.white,
-    this.textColor = Colors.black87,
+    this.textColor = Colors.black,
     this.subtextColor = Colors.black54,
     this.selectedDayColor = const Color(0xFF1976D2),
     this.selectedDayTextColor = Colors.white,
+    this.selectedDaySubtextColor = Colors.black54,
     this.todayColor = const Color(0x331976D2),
     this.todayTextColor = const Color(0xFF1976D2),
     this.weekendColor = Colors.red,
@@ -70,11 +74,11 @@ class LunarCalendarTheme {
     this.goodDayColor = Colors.green,
     this.badDayColor = Colors.red,
     this.eventColor = const Color(0xFF1976D2),
-    this.fontSize = 14,
+    this.fontSize = 16,
     this.subtextFontSize = 10,
-    this.borderRadius = 8,
-    this.cellPadding = const EdgeInsets.all(4),
-    this.showOutsideDays = true,
+    this.borderRadius = 0,
+    this.cellPadding = const EdgeInsets.all(0),
+    this.showOutsideDays = false,
   });
 
   static const dark = LunarCalendarTheme(
@@ -82,10 +86,11 @@ class LunarCalendarTheme {
     backgroundColor: Colors.black,
     textColor: Colors.white,
     subtextColor: Colors.white70,
-    selectedDayColor: Colors.transparent,
-    selectedDayTextColor: Colors.orange,
+    selectedDayColor: Colors.orange,
+    selectedDayTextColor: Colors.black,
+    selectedDaySubtextColor: Colors.white70,
     todayColor: Colors.transparent,
-    todayTextColor: Colors.white,
+    todayTextColor: Colors.orange,
     weekendColor: Colors.red,
     outsideDayColor: Colors.white38,
     goodDayColor: Colors.orange,
@@ -95,7 +100,7 @@ class LunarCalendarTheme {
     subtextFontSize: 10,
     borderRadius: 0,
     cellPadding: EdgeInsets.zero,
-    showOutsideDays: true,
+    showOutsideDays: false,
   );
 
   LunarCalendarTheme copyWith({
@@ -105,6 +110,7 @@ class LunarCalendarTheme {
     Color? subtextColor,
     Color? selectedDayColor,
     Color? selectedDayTextColor,
+    Color? selectedDaySubtextColor,
     Color? todayColor,
     Color? todayTextColor,
     Color? weekendColor,
@@ -125,6 +131,8 @@ class LunarCalendarTheme {
       subtextColor: subtextColor ?? this.subtextColor,
       selectedDayColor: selectedDayColor ?? this.selectedDayColor,
       selectedDayTextColor: selectedDayTextColor ?? this.selectedDayTextColor,
+      selectedDaySubtextColor:
+          selectedDaySubtextColor ?? this.selectedDaySubtextColor,
       todayColor: todayColor ?? this.todayColor,
       todayTextColor: todayTextColor ?? this.todayTextColor,
       weekendColor: weekendColor ?? this.weekendColor,
@@ -156,6 +164,7 @@ class LunarCalendarTheme {
         other.subtextColor == subtextColor &&
         other.selectedDayColor == selectedDayColor &&
         other.selectedDayTextColor == selectedDayTextColor &&
+        other.selectedDaySubtextColor == selectedDaySubtextColor &&
         other.todayColor == todayColor &&
         other.todayTextColor == todayTextColor &&
         other.weekendColor == weekendColor &&
@@ -179,6 +188,7 @@ class LunarCalendarTheme {
       subtextColor,
       selectedDayColor,
       selectedDayTextColor,
+      selectedDaySubtextColor,
       todayColor,
       todayTextColor,
       weekendColor,
