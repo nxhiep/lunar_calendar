@@ -85,6 +85,7 @@ class _MyHomePageState extends State<MyHomePage> {
       body: LunarCalendar(
         theme: widget.isDarkMode ? LunarCalendarTheme.dark : null,
         showOutsideDays: false,
+        showTodayButton: true,
         localization: _isVietnamese
             ? LunarCalendarLocalization.vi
             : LunarCalendarLocalization.en,

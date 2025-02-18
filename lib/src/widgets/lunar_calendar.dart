@@ -24,6 +24,9 @@ class LunarCalendar extends StatefulWidget {
 
   final double? maxWidth;
 
+  /// Có hiển thị nút Today không
+  final bool showTodayButton;
+
   const LunarCalendar({
     super.key,
     this.theme,
@@ -32,6 +35,7 @@ class LunarCalendar extends StatefulWidget {
     this.showOutsideDays,
     this.events = const [],
     this.maxWidth,
+    this.showTodayButton = true, // Mặc định là hiển thị
   });
 
   @override
@@ -96,7 +100,7 @@ class _LunarCalendarState extends State<LunarCalendar> {
       child: LayoutBuilder(builder: (context, constraints) {
         final maxWidth = widget.maxWidth != null
             ? constraints.maxWidth > widget.maxWidth!
-                ? widget.maxWidth
+                ? widget.maxWidth!
                 : constraints.maxWidth
             : constraints.maxWidth;
         final heightOfCell =
@@ -111,6 +115,7 @@ class _LunarCalendarState extends State<LunarCalendar> {
               theme: theme,
               localization: localization,
               maxWidth: maxWidth,
+              showTodayButton: widget.showTodayButton,
               onMonthChanged: (date) {
                 final monthDiff = (date.year - _displayedMonth.year) * 12 +
                     date.month -

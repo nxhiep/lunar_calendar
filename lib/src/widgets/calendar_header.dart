@@ -29,6 +29,8 @@ class CalendarHeader extends StatelessWidget {
 
   final double? maxWidth;
 
+  final bool showTodayButton;
+
   const CalendarHeader({
     super.key,
     required this.displayedMonth,
@@ -39,6 +41,7 @@ class CalendarHeader extends StatelessWidget {
     this.onViewChanged,
     this.onTodayPressed,
     this.maxWidth,
+    this.showTodayButton = true,
   });
 
   @override
@@ -96,14 +99,15 @@ class CalendarHeader extends StatelessWidget {
 
           const Spacer(),
 
-          // Nút Today
-          TextButton(
-            onPressed: onTodayPressed,
-            style: TextButton.styleFrom(
-              foregroundColor: theme.primaryColor,
+          // Chỉ hiển thị nút Today khi showTodayButton = true
+          if (showTodayButton)
+            TextButton(
+              onPressed: onTodayPressed,
+              style: TextButton.styleFrom(
+                foregroundColor: theme.primaryColor,
+              ),
+              child: Text(localization.get('today')),
             ),
-            child: Text(localization.get('today')),
-          ),
         ],
       ),
     );
