@@ -1,143 +1,108 @@
 import 'dart:math';
 
-import '../localization/lunar_calendar_localization.dart';
-import '../models/lunar_date.dart';
+import '../../lunar_calendar.dart';
+
+const goodHours = [
+  '110100101100',
+  '001101001011',
+  '110011010010',
+  '101100110100',
+  '001011001101',
+  '010010110011'
+];
 
 class LunarUtils {
-  static const double _juliusDaysIn1900 = 2415021.076998695;
-  static const double _newMoonCycle = 29.530588853;
+  static String getLocalizedCan(int index, LunarCalendarLocalization l10n) {
+    final list = l10n.get('can').split(',');
+    return list.isNotEmpty ? list[index % list.length] : '';
+  }
 
-  /// Số ngày trong một chu kỳ (19 năm)
-  static const int _lunarCycle = 19;
+  static String getLocalizedChi(int index, LunarCalendarLocalization l10n) {
+    final list = l10n.get('chi').split(',');
+    return list.isNotEmpty ? list[index % list.length] : '';
+  }
 
-  /// Tính số ngày Julius từ ngày dd/mm/yyyy
-  static int _jdFromDate(int dd, int mm, int yy) {
-    int a = ((14 - mm) / 12).floor();
-    int y = yy + 4800 - a;
-    int m = mm + 12 * a - 3;
-    int jd = dd +
-        ((153 * m + 2) / 5).floor() +
+  static String getLocalizedTietKhi(int index, LunarCalendarLocalization l10n) {
+    final list = l10n.get('solar_terms').split(',');
+    return list.isNotEmpty ? list[index % list.length] : '';
+  }
+
+  static int _toInt(double d) => d.toInt();
+
+  /// Tính ngày Julius từ ngày dương lịch
+  static int jdFromDate(int dd, int mm, int yy) {
+    final a = _toInt((14 - mm) / 12);
+    final y = yy + 4800 - a;
+    final m = mm + 12 * a - 3;
+    var jd = dd +
+        _toInt((153 * m + 2) / 5) +
         365 * y +
-        (y / 4).floor() -
-        (y / 100).floor() +
-        (y / 400).floor() -
+        _toInt(y / 4) -
+        _toInt(y / 100) +
+        _toInt(y / 400) -
         32045;
 
     if (jd < 2299161) {
-      jd = dd + ((153 * m + 2) / 5).floor() + 365 * y + (y / 4).floor() - 32083;
+      jd = dd + _toInt((153 * m + 2) / 5) + 365 * y + _toInt(y / 4) - 32083;
     }
     return jd;
   }
 
-  /// Chuyển số ngày Julius sang ngày/tháng/năm
-  static List<int> _jdToDate(int jd) {
-    int a, b, c, d, e, m, day, month, year;
-
+  /// Tính ngày dương lịch từ ngày Julius
+  static List<int> jdToDate(int jd) {
+    int a, b, c;
     if (jd > 2299160) {
       a = jd + 32044;
-      b = ((4 * a + 3) / 146097).floor();
-      c = a - ((b * 146097) / 4).floor();
+      b = _toInt((4 * a + 3) / 146097);
+      c = a - _toInt((b * 146097) / 4);
     } else {
       b = 0;
       c = jd + 32082;
     }
-    d = ((4 * c + 3) / 1461).floor();
-    e = c - ((1461 * d) / 4).floor();
-    m = ((5 * e + 2) / 153).floor();
-    day = e - ((153 * m + 2) / 5).floor() + 1;
-    month = m + 3 - 12 * (m / 10).floor();
-    year = b * 100 + d - 4800 + (m / 10).floor();
+
+    final d = _toInt((4 * c + 3) / 1461);
+    final e = c - _toInt((1461 * d) / 4);
+    final m = _toInt((5 * e + 2) / 153);
+    final day = e - _toInt((153 * m + 2) / 5) + 1;
+    final month = m + 3 - 12 * _toInt(m / 10);
+    final year = b * 100 + d - 4800 + _toInt(m / 10);
 
     return [day, month, year];
   }
 
-  /// Tính ngày sóc thứ k kể từ điểm Sóc ngày 1/1/1900
-  static double _getNewMoonDay(int k) {
-    double T = k / 1236.85; // Time in Julian centuries from 1900 January 0.5
-    double t2 = T * T;
-    double t3 = t2 * T;
-    double dr = pi / 180;
-    double jd1 =
-        2415020.75933 + 29.53058868 * k + 0.0001178 * t2 - 0.000000155 * t3;
-    jd1 = jd1 + 0.00033 * sin((166.56 + 132.87 * T - 0.009173 * t2) * dr);
+  static LunarDate solarToLunar(DateTime date, {double timeZone = 7.0}) {
+    final dd = date.day;
+    final mm = date.month;
+    final yy = date.year;
 
-    double M = 359.2242 + 29.10535608 * k - 0.0000333 * t2 - 0.00000347 * t3;
-    double mpr = 306.0253 + 385.81691806 * k + 0.0107306 * t2 + 0.00001236 * t3;
-    double F = 21.2964 + 390.67050646 * k - 0.0016528 * t2 - 0.00000239 * t3;
-
-    double c1 =
-        (0.1734 - 0.000393 * T) * sin(M * dr) + 0.0021 * sin(2 * dr * M);
-    c1 = c1 - 0.4068 * sin(mpr * dr) + 0.0161 * sin(dr * 2 * mpr);
-    c1 = c1 - 0.0004 * sin(dr * 3 * mpr);
-    c1 = c1 + 0.0104 * sin(dr * 2 * F) - 0.0051 * sin(dr * (M + mpr));
-    c1 = c1 - 0.0074 * sin(dr * (M - mpr)) + 0.0004 * sin(dr * (2 * F + M));
-    c1 = c1 - 0.0004 * sin(dr * (2 * F - M)) - 0.0006 * sin(dr * (2 * F + mpr));
-    c1 = c1 +
-        0.0010 * sin(dr * (2 * F - mpr)) +
-        0.0005 * sin(dr * (2 * mpr + M));
-
-    double delta;
-    if (T < -11) {
-      delta = 0.001 +
-          0.000839 * T +
-          0.0002261 * t2 -
-          0.00000845 * t3 -
-          0.000000081 * T * t3;
-    } else {
-      delta = -0.000278 + 0.000265 * T + 0.000262 * t2;
-    }
-
-    return jd1 + c1 - delta;
-  }
-
-  /// Tính tọa độ mặt trời
-  static double _getSunLongitude(double jdn) {
-    double T = (jdn - 2451545.0) / 36525;
-    double t2 = T * T;
-    double dr = pi / 180;
-    double M =
-        357.52910 + 35999.05030 * T - 0.0001559 * t2 - 0.00000048 * T * t2;
-    double L0 = 280.46645 + 36000.76983 * T + 0.0003032 * t2;
-    double DL = (1.914600 - 0.004817 * T - 0.000014 * t2) * sin(dr * M);
-    DL = DL +
-        (0.019993 - 0.000101 * T) * sin(dr * 2 * M) +
-        0.000290 * sin(dr * 3 * M);
-    double L = L0 + DL;
-    L = L * dr;
-    L = L - pi * 2 * (L / (pi * 2)).floor();
-    return L;
-  }
-
-  /// Chuyển đổi ngày dương lịch sang âm lịch
-  static LunarDate solarToLunar(DateTime solar, [int timeZone = 7]) {
-    int dayNumber = _jdFromDate(solar.day, solar.month, solar.year);
-    int k = ((dayNumber - _juliusDaysIn1900) / _newMoonCycle).floor();
-    int monthStart = (_getNewMoonDay(k + 1) + 0.5 + timeZone / 24).floor();
+    final dayNumber = jdFromDate(dd, mm, yy);
+    final k = _toInt((dayNumber - 2415021.076998695) / 29.530588853);
+    var monthStart = getNewMoonDay(k + 1, timeZone);
 
     if (monthStart > dayNumber) {
-      monthStart = (_getNewMoonDay(k) + 0.5 + timeZone / 24).floor();
+      monthStart = getNewMoonDay(k, timeZone);
     }
 
-    int a11 = _getLunarMonth11(solar.year, timeZone);
-    int b11 = a11;
+    var a11 = getLunarMonth11(yy, timeZone);
+    final b11 = a11;
+
     int lunarYear;
     if (a11 >= monthStart) {
-      lunarYear = solar.year;
-      a11 = _getLunarMonth11(solar.year - 1, timeZone);
+      lunarYear = yy;
+      a11 = getLunarMonth11(yy - 1, timeZone);
     } else {
-      lunarYear = solar.year + 1;
-      b11 = _getLunarMonth11(solar.year + 1, timeZone);
+      lunarYear = yy + 1;
     }
 
-    int lunarDay = dayNumber - monthStart + 1;
-    int diff = ((monthStart - a11) / 29.530588853).floor();
-    int lunarLeap = 0;
-    int lunarMonth = diff + 12;
+    final lunarDay = dayNumber - monthStart + 1;
+    final diff = _toInt((monthStart - a11) / 29);
+    var lunarLeap = 0;
+    var lunarMonth = diff + 11;
 
     if (b11 - a11 > 365) {
-      int leapMonthDiff = _getLeapMonthOffset(a11, timeZone);
+      final leapMonthDiff = getLeapMonthOffset(a11, timeZone);
       if (diff >= leapMonthDiff) {
-        lunarMonth = diff + 11;
+        lunarMonth = diff + 10;
         if (diff == leapMonthDiff) {
           lunarLeap = 1;
         }
@@ -159,157 +124,241 @@ class LunarUtils {
     );
   }
 
-  /// Chuyển đổi ngày âm lịch sang dương lịch
-  static DateTime lunarToSolar(LunarDate lunar, [int timeZone = 7]) {
-    int a11, b11, off, leapOff, leapMonth, monthStart;
-
-    if (lunar.month < 11) {
-      a11 = _getLunarMonth11(lunar.year - 1, timeZone);
-      b11 = _getLunarMonth11(lunar.year, timeZone);
+  /* Compute the time of the k-th new moon after the new moon of 1/1/1900 13:52 UCT 
+   * (measured as the number of days since 1/1/4713 BC noon UCT, e.g., 2451545.125 is 1/1/2000 15:00 UTC).
+   * Returns a floating number, e.g., 2415079.9758617813 for k=2 or 2414961.935157746 for k=-2
+   * Algorithm from: "Astronomical Algorithms" by Jean Meeus, 1998
+   */
+  static double newMoon(int k) {
+    double T, T2, T3, dr, Jd1, M, Mpr, F, C1, delta, JdNew;
+    T = k / 1236.85; // Time in Julian centuries from 1900 January 0.5
+    T2 = T * T;
+    T3 = T2 * T;
+    dr = pi / 180;
+    Jd1 = 2415020.75933 + 29.53058868 * k + 0.0001178 * T2 - 0.000000155 * T3;
+    Jd1 = Jd1 +
+        0.00033 *
+            sin((166.56 + 132.87 * T - 0.009173 * T2) * dr); // Mean new moon
+    M = 359.2242 +
+        29.10535608 * k -
+        0.0000333 * T2 -
+        0.00000347 * T3; // Sun's mean anomaly
+    Mpr = 306.0253 +
+        385.81691806 * k +
+        0.0107306 * T2 +
+        0.00001236 * T3; // Moon's mean anomaly
+    F = 21.2964 +
+        390.67050646 * k -
+        0.0016528 * T2 -
+        0.00000239 * T3; // Moon's argument of latitude
+    C1 = (0.1734 - 0.000393 * T) * sin(M * dr) + 0.0021 * sin(2 * dr * M);
+    C1 = C1 - 0.4068 * sin(Mpr * dr) + 0.0161 * sin(dr * 2 * Mpr);
+    C1 = C1 - 0.0004 * sin(dr * 3 * Mpr);
+    C1 = C1 + 0.0104 * sin(dr * 2 * F) - 0.0051 * sin(dr * (M + Mpr));
+    C1 = C1 - 0.0074 * sin(dr * (M - Mpr)) + 0.0004 * sin(dr * (2 * F + M));
+    C1 = C1 - 0.0004 * sin(dr * (2 * F - M)) - 0.0006 * sin(dr * (2 * F + Mpr));
+    C1 = C1 +
+        0.0010 * sin(dr * (2 * F - Mpr)) +
+        0.0005 * sin(dr * (2 * Mpr + M));
+    if (T < -11) {
+      delta = 0.001 +
+          0.000839 * T +
+          0.0002261 * T2 -
+          0.00000845 * T3 -
+          0.000000081 * T * T3;
     } else {
-      a11 = _getLunarMonth11(lunar.year, timeZone);
-      b11 = _getLunarMonth11(lunar.year + 1, timeZone);
+      delta = -0.000278 + 0.000265 * T + 0.000262 * T2;
     }
-
-    int k = (0.5 + (a11 - _juliusDaysIn1900) / _newMoonCycle).floor();
-    off = lunar.month - 11;
-    if (off < 0) {
-      off += 12;
-    }
-
-    if (b11 - a11 > 365) {
-      leapOff = _getLeapMonthOffset(a11, timeZone);
-      leapMonth = leapOff - 2;
-      if (leapMonth < 0) {
-        leapMonth += 12;
-      }
-      if (lunar.isLeapMonth && lunar.month != leapMonth) {
-        return DateTime(0); // Invalid date
-      } else if (lunar.isLeapMonth || off >= leapOff) {
-        off += 1;
-      }
-    }
-
-    monthStart = _getNewMoonDay(k + off).toInt();
-    List<int> ret = _jdToDate(monthStart + lunar.day - 1);
-    return DateTime(ret[2], ret[1], ret[0]);
+    ;
+    JdNew = Jd1 + C1 - delta;
+    return JdNew;
   }
 
-  static int _getLunarMonth11(int yy, [int timeZone = 7]) {
-    double off = _jdFromDate(31, 12, yy) - 2415021.076998695;
-    int k = (off / 29.530588853).floor();
-    int nm = _getNewMoonDay(k).toInt();
-    int sunLong = _getSunLongitude(nm + 0.5 + timeZone / 24).toInt();
+  /* Compute the longitude of the sun at any time. 
+   * Parameter: floating number jdn, the number of days since 1/1/4713 BC noon
+   * Algorithm from: "Astronomical Algorithms" by Jean Meeus, 1998
+   */
+  static double sunLongitude(double jdn) {
+    double T, T2, dr, M, L0, DL, L;
+    T = (jdn - 2451545.0) /
+        36525; // Time in Julian centuries from 2000-01-01 12:00:00 GMT
+    T2 = T * T;
+    dr = pi / 180; // degree to radian
+    M = 357.52910 +
+        35999.05030 * T -
+        0.0001559 * T2 -
+        0.00000048 * T * T2; // mean anomaly, degree
+    L0 = 280.46645 + 36000.76983 * T + 0.0003032 * T2; // mean longitude, degree
+    DL = (1.914600 - 0.004817 * T - 0.000014 * T2) * sin(dr * M);
+    DL = DL +
+        (0.019993 - 0.000101 * T) * sin(dr * 2 * M) +
+        0.000290 * sin(dr * 3 * M);
+    L = L0 + DL; // true longitude, degree
+    L = L * dr;
+    L = L - pi * 2 * (_toInt(L / (pi * 2)));
+    return L;
+  }
 
+  /* Compute sun position at midnight of the day with the given Julian day number. 
+   * The time zone if the time difference between local time and UTC: 7.0 for UTC+7:00.
+   * The  returns a number between 0 and 11. 
+   * From the day after March equinox and the 1st major term after March equinox, 0 is returned. 
+   * After that, return 1, 2, 3 ... 
+   */
+  static int getSunLongitude(double dayNumber, double timeZone) {
+    return _toInt(sunLongitude(dayNumber - 0.5 - timeZone / 24) / pi * 6);
+  }
+
+  /* Compute the day of the k-th new moon in the given time zone.
+   * The time zone if the time difference between local time and UTC: 7.0 for UTC+7:00
+   */
+  static int getNewMoonDay(int k, double timeZone) {
+    return _toInt(newMoon(k) + 0.5 + timeZone / 24);
+  }
+
+  /* Find the day that starts the luner month 11 of the given year for the given time zone */
+  static int getLunarMonth11(int yy, double timeZone) {
+    int k, off, nm, sunLong;
+    off = jdFromDate(31, 12, yy) - 2415021;
+    k = _toInt(off / 29.530588853);
+    nm = getNewMoonDay(k, timeZone);
+    sunLong = getSunLongitude(
+        nm.toDouble(), timeZone); // sun longitude at local midnight
     if (sunLong >= 9) {
-      nm = _getNewMoonDay(k - 1).toInt();
+      nm = getNewMoonDay(k - 1, timeZone);
     }
     return nm;
   }
 
-  static int _getLeapMonthOffset(int a11, [int timeZone = 7]) {
-    int k = ((a11 - _juliusDaysIn1900) / _newMoonCycle + 0.5).floor();
-    int last = 0;
-    int i = 1;
-    int arc =
-        _getSunLongitude(_getNewMoonDay(k + i) + 0.5 + timeZone / 24).toInt();
-
+  /* Find the index of the leap month after the month starting on the day a11. */
+  static int getLeapMonthOffset(int a11, double timeZone) {
+    int k, last, arc, i;
+    k = _toInt((a11 - 2415021.076998695) / 29.530588853 + 0.5);
+    last = 0;
+    i = 1; // We start with the month following lunar month 11
+    arc = getSunLongitude(getNewMoonDay(k + i, timeZone).toDouble(), timeZone);
     do {
       last = arc;
       i++;
       arc =
-          _getSunLongitude(_getNewMoonDay(k + i) + 0.5 + timeZone / 24).toInt();
+          getSunLongitude(getNewMoonDay(k + i, timeZone).toDouble(), timeZone);
     } while (arc != last && i < 14);
-
     return i - 1;
   }
 
-  /// Lấy can chi của năm theo ngôn ngữ
-  static String getYearCanChi(
-      int year, LunarCalendarLocalization localization) {
-    final can = localization.get('can').split(',');
-    final chi = localization.get('chi').split(',');
-
-    final canIndex = (year - 4) % 10;
-    final chiIndex = (year - 4) % 12;
-
-    return '${can[canIndex]} ${chi[chiIndex]}';
-  }
-
-  /// Lấy can chi của tháng theo ngôn ngữ
-  static String getMonthCanChi(
-    int month,
-    int yearCan,
-    LunarCalendarLocalization localization,
-  ) {
-    final can = localization.get('can').split(',');
-    final chi = localization.get('month_chi').split(',');
-
-    final canIndex = (yearCan * 2 + month - 1) % 10;
-    return '${can[canIndex]} ${chi[month - 1]}';
-  }
-
-  /// Lấy can chi của ngày theo ngôn ngữ
-  static String getDayCanChi(
-    DateTime date,
-    LunarCalendarLocalization localization,
-  ) {
-    final can = localization.get('can').split(',');
-    final chi = localization.get('chi').split(',');
-
-    final epoch = DateTime(1900, 1, 1);
-    final days = date.difference(epoch).inDays;
-
-    final canIndex = (days + 9) % 10;
-    final chiIndex = (days + 1) % 12;
-
-    return '${can[canIndex]} ${chi[chiIndex]}';
-  }
-
-  /// Kiểm tra năm nhuận âm lịch
-  static bool isLeapYear(int year) {
-    // Công thức tính năm nhuận âm lịch
-    // Một chu kỳ 19 năm có 7 năm nhuận
-    return [2, 5, 7, 10, 13, 15, 18].contains(year % _lunarCycle);
-  }
-
-  /// Lấy danh sách các giờ hoàng đạo trong ngày theo ngôn ngữ
-  static List<String> getGoodHours(
-    DateTime date,
-    LunarCalendarLocalization localization,
-  ) {
-    final dayCanChi = getDayCanChi(date, localization);
-    // TODO: Implement good hours calculation
-    return [
-      '${localization.get('hour_ty')} (23:00-1:00)',
-      '${localization.get('hour_dan')} (3:00-5:00)',
-      '${localization.get('hour_mao')} (5:00-7:00)',
-    ];
-  }
-
-  /// Kiểm tra ngày hoàng đạo
   static bool isGoodDay(DateTime date) {
-    final lunar = solarToLunar(date);
-    // TODO: Implement good day calculation
-    return lunar.day % 2 == 0; // Tạm thời return mẫu
+    final lunarDate = solarToLunar(date);
+    final lunarDay = lunarDate.day;
+    final lunarMonth = lunarDate.month;
+    final lunarYear = lunarDate.year;
+    final jd = jdFromDate(lunarDay, lunarMonth, lunarYear);
+    final index = getSunLongitude(jd + 1, 7.0);
+    return true;
   }
 
-  /// Lấy tiết khí của ngày theo ngôn ngữ
-  static String? getSolarTerm(
-    DateTime date,
-    LunarCalendarLocalization localization,
-  ) {
-    final terms = localization.get('solar_terms').split(',');
-    // TODO: Implement solar term calculation
-    return null;
+  static List<int> lunarToSolar(int lunarDay, int lunarMonth, int lunarYear,
+      int lunarLeap, double timeZone) {
+    int k, a11, b11, off, leapOff, leapMonth, monthStart;
+    if (lunarMonth < 11) {
+      a11 = getLunarMonth11(lunarYear - 1, timeZone);
+      b11 = getLunarMonth11(lunarYear, timeZone);
+    } else {
+      a11 = getLunarMonth11(lunarYear, timeZone);
+      b11 = getLunarMonth11(lunarYear + 1, timeZone);
+    }
+    k = _toInt(0.5 + (a11 - 2415021.076998695) / 29.530588853);
+    off = lunarMonth - 11;
+    if (off < 0) {
+      off += 12;
+    }
+    if (b11 - a11 > 365) {
+      leapOff = getLeapMonthOffset(a11, timeZone);
+      leapMonth = leapOff - 2;
+      if (leapMonth < 0) {
+        leapMonth += 12;
+      }
+      if (lunarLeap != 0 && lunarMonth != leapMonth) {
+        return [0, 0, 0];
+      } else if (lunarLeap != 0 || off >= leapOff) {
+        off += 1;
+      }
+    }
+    monthStart = getNewMoonDay(k + off, timeZone);
+    return jdToDate(monthStart + lunarDay - 1);
   }
 
-  /// Lấy ngày lễ âm lịch theo ngôn ngữ
-  static String? getLunarFestival(
-    LunarDate date,
-    LunarCalendarLocalization localization,
-  ) {
-    final key = 'festival_${date.day}_${date.month}';
-    return localization.get(key);
+  static String getCanChiYear(int year, LunarCalendarLocalization l10n) {
+    final can = getLocalizedCan(year % 10, l10n);
+    final chi = getLocalizedChi(year % 12, l10n);
+    return '$can $chi';
+  }
+
+  static String getCanChiMonth(
+      int month, int year, LunarCalendarLocalization l10n) {
+    final chi = l10n.get('chi').split(',')[month - 1];
+    final can = l10n.get('can').split(',')[year % 10];
+    return '$can $chi';
+  }
+
+  static String getYearCanChi(int year, LunarCalendarLocalization l10n) {
+    final can = getLocalizedCan(year % 10, l10n);
+    final chi = getLocalizedChi(year % 12, l10n);
+    return '$can $chi';
+  }
+
+  static String getCanHour(int jdn, LunarCalendarLocalization l10n) {
+    final can = getLocalizedCan((jdn - 1) * 2 % 10, l10n);
+    final chi = getLocalizedChi((jdn + 1) % 12, l10n);
+    return '$can $chi';
+  }
+
+  static String getCanDay(int jdn, LunarCalendarLocalization l10n) {
+    final can = getLocalizedCan((jdn + 9) % 10, l10n);
+    final chi = getLocalizedChi((jdn + 1) % 12, l10n);
+    return '$can $chi';
+  }
+
+  static int jdn(int dd, int mm, int yy) {
+    var a = _toInt((14 - mm) / 12);
+    var y = yy + 4800 - a;
+    var m = mm + 12 * a - 3;
+    var jd = dd +
+        _toInt((153 * m + 2) / 5) +
+        365 * y +
+        _toInt(y / 4) -
+        _toInt(y / 100) +
+        _toInt(y / 400) -
+        32045;
+    return jd;
+  }
+
+  static String getGioHoangDao(int jd, LunarCalendarLocalization l10n) {
+    var chiOfDay = (jd + 1) % 12;
+    final list = l10n.get('chi').split(',');
+    var gioHD = goodHours[chiOfDay %
+        6]; // same values for Ty' (1) and Ngo. (6), for Suu and Mui etc.
+    var ret = "";
+    var count = 0;
+    for (var i = 0; i < 12; i++) {
+      if (gioHD.substring(i, i + 1) == '1') {
+        ret += list[i];
+        ret += ' (${{(i * 2 + 23) % 24}}-${{(i * 2 + 1) % 24}})';
+        if (count++ < 5) ret += ', ';
+        if (count == 3) ret += '\n';
+      }
+    }
+    return ret;
+  }
+
+  static String getTietKhi(int jd, LunarCalendarLocalization l10n) {
+    final index = getSunLongitude(jd + 1, 7.0);
+    final list = l10n.get('solar_terms').split(',');
+    return list[index];
+  }
+
+  static String getBeginHour(int jdn, LunarCalendarLocalization l10n) {
+    final can = getLocalizedCan((jdn - 1) * 2 % 10, l10n);
+    final chi = getLocalizedChi(0, l10n);
+    return '$can $chi';
   }
 }

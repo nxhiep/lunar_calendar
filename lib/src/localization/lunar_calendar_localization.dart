@@ -54,7 +54,7 @@ class LunarCalendarLocalization {
       'hour_dan': 'Dần',
       'hour_mao': 'Mão',
       'solar_terms':
-          'Xuân phân,Thanh minh,Cốc vũ,Lập hạ,Tiểu mãn,Mang chủng,...',
+          'Xuân phân,Thanh minh,Cốc vũ,Lập hạ,Tiểu mãn,Mang chủng,Hạ chí,Tiểu thử,Đại thử,Lập thu,Xử thử,Bạch lộ,Thu phân,Hàn lộ,Sương giáng,Lập đông,Tiểu tuyết,Đại tuyết,Đông chí,Tiểu hàn,Đại hàn,Lập xuân,Vũ thủy,Kinh trập',
       'festival_1_1': 'Tết Nguyên Đán',
       'festival_15_1': 'Rằm tháng Giêng',
       'festival_10_3': 'Giỗ Tổ Hùng Vương',
@@ -119,7 +119,7 @@ class LunarCalendarLocalization {
       'hour_dan': 'Tiger Hour',
       'hour_mao': 'Cat Hour',
       'solar_terms':
-          'Spring Equinox,Clear and Bright,Grain Rain,Start of Summer,...',
+          'Spring Equinox,Clear and Bright,Grain Rain,Start of Summer,Little Full Moon,Great Full Moon,Summer Solstice,Little Cold,Great Cold,Winter Solstice,Little Snow,Great Snow,Winter Solstice,Little Snow,Great Snow,Spring Equinox,Summer Solstice,Autumn Equinox,Winter Solstice,Little Snow,Great Snow,Spring Equinox,Summer Solstice,Autumn Equinox,Winter Solstice',
       'festival_1_1': 'Lunar New Year',
       'festival_15_1': 'First Full Moon Festival',
       'festival_10_3': 'Hung Kings Festival',
