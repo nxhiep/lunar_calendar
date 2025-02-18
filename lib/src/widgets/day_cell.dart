@@ -56,7 +56,6 @@ class DayCell extends StatelessWidget {
     final isSelected =
         selectedDate != null && DateUtils.isSameDay(date, selectedDate);
     final isToday = DateUtils.isToday(date);
-    final isWeekend = DateUtils.isWeekend(date);
     final isGoodDay = LunarUtils.isGoodDay(date);
 
     if (!isCurrentMonth && !theme.showOutsideDays) {
@@ -73,60 +72,56 @@ class DayCell extends StatelessWidget {
       child: Container(
         padding: theme.cellPadding,
         child: Stack(
-          alignment: Alignment.center,
           children: [
-            Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Container(
-                  width: 28,
-                  height: 28,
-                  decoration: BoxDecoration(
-                    color: isSelected ? theme.selectedDayColor : null,
-                    shape: BoxShape.circle,
-                    border: isToday
-                        ? Border.all(
-                            color: theme.todayTextColor,
-                            width: 1,
-                          )
-                        : null,
-                  ),
-                  child: Center(
+            Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Container(
+                    width: theme.fontSize + 10,
+                    height: theme.fontSize + 10,
+                    alignment: Alignment.center,
+                    decoration: BoxDecoration(
+                      color: isSelected ? theme.selectedDayColor : null,
+                      shape: BoxShape.circle,
+                      border: isToday
+                          ? Border.all(
+                              color: theme.todayColor,
+                              width: 1,
+                            )
+                          : null,
+                    ),
                     child: Text(
                       date.day.toString(),
                       textAlign: TextAlign.center,
                       style: TextStyle(
-                        color: _getTextColor(isSelected, isToday, isWeekend),
+                        color: _getTextColor(isSelected, isToday, date),
                         fontSize: theme.fontSize,
                         fontWeight: isSelected ? FontWeight.bold : null,
                       ),
                     ),
                   ),
-                ),
-                const SizedBox(height: 2),
-                Text(
-                  shouldShowMonth
-                      ? '${lunarDate.day}/${lunarDate.month}'
-                      : lunarDate.day.toString(),
-                  style: TextStyle(
-                    color: _getSubtextColor(isSelected),
-                    fontSize: theme.subtextFontSize,
+                  Text(
+                    shouldShowMonth
+                        ? '${lunarDate.day}/${lunarDate.month}'
+                        : lunarDate.day.toString(),
+                    style: TextStyle(
+                      color: _getSubtextColor(isSelected),
+                      fontSize: theme.subtextFontSize,
+                    ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
-
-            // Chỉ báo sự kiện
             if (events.isNotEmpty)
               Positioned(
-                bottom: theme.subtextFontSize + (isSelected ? 3 : 6),
+                right: 4,
+                top: 4,
                 child: Container(
                   width: 4,
                   height: 4,
                   decoration: BoxDecoration(
-                    color: !isCurrentMonth
-                        ? theme.eventColor.withOpacity(0.5)
-                        : theme.eventColor,
+                    color: theme.eventColor,
                     shape: BoxShape.circle,
                   ),
                 ),
@@ -137,11 +132,12 @@ class DayCell extends StatelessWidget {
     );
   }
 
-  Color _getTextColor(bool isSelected, bool isToday, bool isWeekend) {
+  Color _getTextColor(bool isSelected, bool isToday, DateTime date) {
     if (!isCurrentMonth) return theme.outsideDayColor;
     if (isSelected) return theme.selectedDayTextColor;
-    if (isWeekend) return theme.weekendColor;
     if (isToday) return theme.todayTextColor;
+    if (date.weekday == 7) return theme.sundayColor;
+    if (date.weekday == 6) return theme.saturdayColor;
     return theme.textColor;
   }
 

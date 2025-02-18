@@ -82,13 +82,16 @@ class _LunarCalendarState extends State<LunarCalendar> {
     );
   }
 
-  List<LunarEvent> _getEventsForMonth(DateTime month) {
+  List<LunarEvent> _getEventsForDate() {
     return widget.events.where((event) {
       if (event.solarDate != null) {
-        return event.solarDate!.year == month.year &&
-            event.solarDate!.month == month.month;
+        return event.solarDate!.year == _selectedDate.year &&
+            event.solarDate!.month == _selectedDate.month &&
+            event.solarDate!.day == _selectedDate.day &&
+            event.solarDate!.year == _displayedMonth.year &&
+            event.solarDate!.month == _displayedMonth.month;
       }
-      // Handle lunar date events if needed
+
       return false;
     }).toList();
   }
@@ -187,9 +190,11 @@ class _LunarCalendarState extends State<LunarCalendar> {
                 localization: localization,
               ),
               style: TextStyle(
-                color: DateUtils.isWeekend(date)
-                    ? theme.weekendColor
-                    : theme.textColor,
+                color: date.weekday == 7
+                    ? theme.sundayColor
+                    : date.weekday == 6
+                        ? theme.saturdayColor
+                        : theme.textColor,
                 fontSize: theme.fontSize,
                 fontWeight: FontWeight.bold,
               ),
@@ -308,7 +313,7 @@ class _LunarCalendarState extends State<LunarCalendar> {
     LunarCalendarTheme theme,
     LunarCalendarLocalization localization,
   ) {
-    final monthEvents = _getEventsForMonth(_displayedMonth);
+    final monthEvents = _getEventsForDate();
     if (monthEvents.isEmpty) return [];
 
     return [

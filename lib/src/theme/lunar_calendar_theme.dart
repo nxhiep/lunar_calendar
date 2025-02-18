@@ -29,8 +29,11 @@ class LunarCalendarTheme {
   /// Màu text ngày hôm nay
   final Color todayTextColor;
 
-  /// Màu ngày cuối tuần
-  final Color weekendColor;
+  /// Màu ngày chủ nhật
+  final Color sundayColor;
+
+  /// Màu ngày thứ bảy
+  final Color saturdayColor;
 
   /// Màu ngày ngoài tháng hiện tại
   final Color outsideDayColor;
@@ -69,7 +72,8 @@ class LunarCalendarTheme {
     this.selectedDaySubtextColor = Colors.black54,
     this.todayColor = const Color(0x331976D2),
     this.todayTextColor = const Color(0xFF1976D2),
-    this.weekendColor = Colors.red,
+    this.sundayColor = const Color(0xFFD32F2F),
+    this.saturdayColor = const Color(0xFF2E7D32),
     this.outsideDayColor = Colors.black38,
     this.goodDayColor = Colors.green,
     this.badDayColor = Colors.red,
@@ -91,7 +95,8 @@ class LunarCalendarTheme {
     selectedDaySubtextColor: Colors.white70,
     todayColor: Colors.transparent,
     todayTextColor: Colors.orange,
-    weekendColor: Colors.red,
+    sundayColor: Color(0xFFEF5350),
+    saturdayColor: Color(0xFF81C784),
     outsideDayColor: Colors.white38,
     goodDayColor: Colors.orange,
     badDayColor: Colors.red,
@@ -113,7 +118,8 @@ class LunarCalendarTheme {
     Color? selectedDaySubtextColor,
     Color? todayColor,
     Color? todayTextColor,
-    Color? weekendColor,
+    Color? sundayColor,
+    Color? saturdayColor,
     Color? outsideDayColor,
     Color? goodDayColor,
     Color? badDayColor,
@@ -135,7 +141,8 @@ class LunarCalendarTheme {
           selectedDaySubtextColor ?? this.selectedDaySubtextColor,
       todayColor: todayColor ?? this.todayColor,
       todayTextColor: todayTextColor ?? this.todayTextColor,
-      weekendColor: weekendColor ?? this.weekendColor,
+      sundayColor: sundayColor ?? this.sundayColor,
+      saturdayColor: saturdayColor ?? this.saturdayColor,
       outsideDayColor: outsideDayColor ?? this.outsideDayColor,
       goodDayColor: goodDayColor ?? this.goodDayColor,
       badDayColor: badDayColor ?? this.badDayColor,
@@ -167,7 +174,8 @@ class LunarCalendarTheme {
         other.selectedDaySubtextColor == selectedDaySubtextColor &&
         other.todayColor == todayColor &&
         other.todayTextColor == todayTextColor &&
-        other.weekendColor == weekendColor &&
+        other.sundayColor == sundayColor &&
+        other.saturdayColor == saturdayColor &&
         other.outsideDayColor == outsideDayColor &&
         other.goodDayColor == goodDayColor &&
         other.badDayColor == badDayColor &&
@@ -191,7 +199,8 @@ class LunarCalendarTheme {
       selectedDaySubtextColor,
       todayColor,
       todayTextColor,
-      weekendColor,
+      sundayColor,
+      saturdayColor,
       outsideDayColor,
       goodDayColor,
       badDayColor,
