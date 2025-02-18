@@ -115,8 +115,8 @@ class DayCell extends StatelessWidget {
             ),
             if (events.isNotEmpty)
               Positioned(
-                right: 4,
-                top: 4,
+                right: 2,
+                top: 2,
                 child: Container(
                   width: 4,
                   height: 4,

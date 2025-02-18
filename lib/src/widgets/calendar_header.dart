@@ -27,6 +27,8 @@ class CalendarHeader extends StatelessWidget {
   /// Callback khi nhấn nút Today
   final VoidCallback? onTodayPressed;
 
+  final double? maxWidth;
+
   const CalendarHeader({
     super.key,
     required this.displayedMonth,
@@ -36,12 +38,15 @@ class CalendarHeader extends StatelessWidget {
     this.onMonthChanged,
     this.onViewChanged,
     this.onTodayPressed,
+    this.maxWidth,
   });
 
   @override
   Widget build(BuildContext context) {
     return Container(
       padding: const EdgeInsets.all(16),
+      constraints: BoxConstraints(maxWidth: maxWidth ?? double.infinity),
+      width: maxWidth,
       child: Row(
         children: [
           // Back button & Year

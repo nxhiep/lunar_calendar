@@ -36,6 +36,8 @@ class LunarCalendar extends StatefulWidget {
   /// Danh sách sự kiện cố định
   final List<LunarEvent> events;
 
+  final double? maxWidth;
+
   const LunarCalendar({
     super.key,
     this.theme,
@@ -46,6 +48,7 @@ class LunarCalendar extends StatefulWidget {
     this.onEventDeleted,
     this.showOutsideDays,
     this.events = const [], // Default empty list
+    this.maxWidth,
   });
 
   @override
@@ -107,71 +110,95 @@ class _LunarCalendarState extends State<LunarCalendar> {
 
     return Material(
       color: theme.backgroundColor,
-      child: Column(
-        children: [
-          CalendarHeader(
-            displayedMonth: _displayedMonth,
-            currentView: _currentView,
-            theme: theme,
-            localization: localization,
-            onMonthChanged: (date) {
-              final monthDiff = (date.year - _displayedMonth.year) * 12 +
-                  date.month -
-                  _displayedMonth.month;
-              _pageController.animateToPage(
-                _pageController.page!.round() + monthDiff,
-                duration: const Duration(milliseconds: 300),
-                curve: Curves.easeInOut,
-              );
-            },
-            onViewChanged: (view) {
-              setState(() => _currentView = view);
-            },
-            onTodayPressed: () {
-              final now = DateTime.now();
-              setState(() {
-                _selectedDate = now;
-                _displayedMonth = now;
-              });
-              _pageController.jumpToPage(_initialPage);
-            },
-          ),
+      child: LayoutBuilder(builder: (context, constraints) {
+        final maxWidth = widget.maxWidth ?? constraints.maxWidth;
 
-          if (_currentView.isMonth) _buildWeekdayHeader(theme, localization),
+        return Column(
+          children: [
+            CalendarHeader(
+              displayedMonth: _displayedMonth,
+              currentView: _currentView,
+              theme: theme,
+              localization: localization,
+              maxWidth: maxWidth,
+              onMonthChanged: (date) {
+                final monthDiff = (date.year - _displayedMonth.year) * 12 +
+                    date.month -
+                    _displayedMonth.month;
+                _pageController.animateToPage(
+                  _pageController.page!.round() + monthDiff,
+                  duration: const Duration(milliseconds: 300),
+                  curve: Curves.easeInOut,
+                );
+              },
+              onViewChanged: (view) {
+                setState(() => _currentView = view);
+              },
+              onTodayPressed: () {
+                final now = DateTime.now();
+                setState(() {
+                  _selectedDate = now;
+                  _displayedMonth = now;
+                });
+                _pageController.jumpToPage(_initialPage);
+              },
+            ),
 
-          // Calendar grid with PageView
-          if (_currentView.isMonth)
-            Expanded(
-              child: PageView.builder(
-                controller: _pageController,
-                scrollDirection: Axis.vertical,
-                onPageChanged: (page) {
-                  setState(() {
-                    _displayedMonth = _getMonthForPage(page);
-                  });
-                },
-                itemBuilder: (context, page) {
-                  final month = _getMonthForPage(page);
-                  return _buildMonthView(theme, localization, month);
-                },
-              ),
-            )
-          else
-            _buildYearView(theme, localization),
+            if (_currentView.isMonth)
+              _buildWeekdayHeader(theme, localization, maxWidth),
 
-          // Event section
-          if (_currentView.isMonth) ..._buildEventSection(theme, localization),
-        ],
-      ),
+            // Calendar grid with PageView
+            if (_currentView.isMonth)
+              Builder(builder: (context) {
+                final heightOfCell =
+                    (theme.fontSize + theme.subtextFontSize) * 1.25 + 10;
+                final calendarHeight = 5 * heightOfCell + 5 * 8;
+
+                return Container(
+                  height: calendarHeight,
+                  constraints: BoxConstraints(maxWidth: maxWidth),
+                  child: PageView.builder(
+                    controller: _pageController,
+                    scrollDirection: Axis.vertical,
+                    onPageChanged: (page) {
+                      setState(() {
+                        _displayedMonth = _getMonthForPage(page);
+                      });
+                    },
+                    itemBuilder: (context, page) {
+                      final month = _getMonthForPage(page);
+                      return _buildMonthView(
+                        theme,
+                        localization,
+                        month,
+                        maxWidth,
+                        calendarHeight,
+                        heightOfCell,
+                      );
+                    },
+                  ),
+                );
+              })
+            else
+              _buildYearView(theme, localization),
+
+            // Event section
+            if (_currentView.isMonth)
+              ..._buildEventSection(theme, localization),
+          ],
+        );
+      }),
     );
   }
 
   Widget _buildWeekdayHeader(
     LunarCalendarTheme theme,
     LunarCalendarLocalization localization,
+    double maxWidth,
   ) {
     return Container(
       padding: const EdgeInsets.symmetric(vertical: 8),
+      constraints: BoxConstraints(maxWidth: maxWidth),
       decoration: BoxDecoration(
         border: Border(
           bottom: BorderSide(
@@ -210,36 +237,45 @@ class _LunarCalendarState extends State<LunarCalendar> {
     LunarCalendarTheme theme,
     LunarCalendarLocalization localization,
     DateTime month,
+    double maxWidth,
+    double calendarHeight,
+    double heightOfCell,
   ) {
     final days = DateUtils.daysInMonth(month);
+    final widthOfCell = (maxWidth - 8 * 7) / 7;
+    final childAspectRatio = widthOfCell / heightOfCell;
 
-    return GridView.builder(
-      padding: const EdgeInsets.all(8),
-      physics: const NeverScrollableScrollPhysics(), // Disable grid scroll
-      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-        crossAxisCount: 7,
-        childAspectRatio: 0.9,
-        mainAxisSpacing: 8,
-        crossAxisSpacing: 8,
+    return Container(
+      width: maxWidth,
+      height: calendarHeight,
+      child: GridView.builder(
+        padding: const EdgeInsets.all(8),
+        physics: const NeverScrollableScrollPhysics(),
+        gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+          crossAxisCount: 7,
+          childAspectRatio: childAspectRatio,
+          mainAxisSpacing: 8,
+          crossAxisSpacing: 8,
+        ),
+        shrinkWrap: true,
+        itemCount: days.length,
+        itemBuilder: (context, index) {
+          final date = days[index];
+          final lunarDate = LunarUtils.solarToLunar(date);
+          final isCurrentMonth = date.month == month.month;
+          final events = widget.events.where((e) => e.occursOn(date)).toList();
+
+          return DayCell(
+            date: date,
+            lunarDate: lunarDate,
+            selectedDate: _selectedDate,
+            isCurrentMonth: isCurrentMonth,
+            theme: theme,
+            events: events.map((e) => e.title).toList(),
+            onDateSelected: (date) => _onDateTapped(date),
+          );
+        },
       ),
-      shrinkWrap: true,
-      itemCount: days.length,
-      itemBuilder: (context, index) {
-        final date = days[index];
-        final lunarDate = LunarUtils.solarToLunar(date);
-        final isCurrentMonth = date.month == month.month;
-        final events = widget.events.where((e) => e.occursOn(date)).toList();
-
-        return DayCell(
-          date: date,
-          lunarDate: lunarDate,
-          selectedDate: _selectedDate,
-          isCurrentMonth: isCurrentMonth,
-          theme: theme,
-          events: events.map((e) => e.title).toList(),
-          onDateSelected: (date) => _onDateTapped(date),
-        );
-      },
     );
   }
 
@@ -317,6 +353,7 @@ class _LunarCalendarState extends State<LunarCalendar> {
     if (monthEvents.isEmpty) return [];
 
     return [
+      const SizedBox(height: 12),
       Container(
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
