@@ -44,12 +44,11 @@ class CalendarHeader extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.only(left: 16, right: 4, top: 16, bottom: 8),
       constraints: BoxConstraints(maxWidth: maxWidth ?? double.infinity),
       width: maxWidth,
       child: Row(
         children: [
-          // Nút chọn tháng
           InkWell(
             onTap: () => _showMonthPicker(context),
             child: Row(
@@ -75,7 +74,6 @@ class CalendarHeader extends StatelessWidget {
 
           const SizedBox(width: 8),
 
-          // Nút chọn năm
           InkWell(
             onTap: () => _showYearPicker(context),
             child: Row(

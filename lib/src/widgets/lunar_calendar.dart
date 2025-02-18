@@ -94,7 +94,11 @@ class _LunarCalendarState extends State<LunarCalendar> {
     return Material(
       color: theme.backgroundColor,
       child: LayoutBuilder(builder: (context, constraints) {
-        final maxWidth = widget.maxWidth ?? constraints.maxWidth;
+        final maxWidth = widget.maxWidth != null
+            ? constraints.maxWidth > widget.maxWidth!
+                ? widget.maxWidth
+                : constraints.maxWidth
+            : constraints.maxWidth;
         final heightOfCell =
             (theme.fontSize + theme.subtextFontSize) * 1.25 + 10;
         final calendarHeight = 5 * heightOfCell + 5 * 8;
@@ -161,7 +165,7 @@ class _LunarCalendarState extends State<LunarCalendar> {
 
             // Event section
             if (_currentView.isMonth)
-              ..._buildEventSection(theme, localization),
+              ..._buildEventSection(theme, localization, maxWidth),
           ],
         );
       }),
@@ -325,6 +329,7 @@ class _LunarCalendarState extends State<LunarCalendar> {
   List<Widget> _buildEventSection(
     LunarCalendarTheme theme,
     LunarCalendarLocalization localization,
+    double maxWidth,
   ) {
     final monthEvents = _getEventsForDate();
     if (monthEvents.isEmpty) return [];
@@ -333,6 +338,7 @@ class _LunarCalendarState extends State<LunarCalendar> {
       const SizedBox(height: 12),
       Container(
         padding: const EdgeInsets.all(16),
+        constraints: BoxConstraints(maxWidth: maxWidth),
         decoration: BoxDecoration(
           color: theme.backgroundColor,
           border: Border(
@@ -367,28 +373,5 @@ class _LunarCalendarState extends State<LunarCalendar> {
   void _onDateTapped(DateTime date) {
     setState(() => _selectedDate = date);
     widget.onDateSelected?.call(date);
-  }
-
-  Widget _buildNavButton({required String text, required Color color}) {
-    return Text(
-      text,
-      style: TextStyle(
-        color: color,
-        fontSize: 14,
-      ),
-    );
-  }
-
-  void _onMonthChanged(DateTime date) {
-    final monthDiff = (date.year - _displayedMonth.year) * 12 +
-        (date.month - _displayedMonth.month);
-
-    final targetPage = _pageController.page!.round() + monthDiff;
-
-    _pageController.animateToPage(
-      targetPage,
-      duration: const Duration(milliseconds: 300),
-      curve: Curves.easeInOut,
-    );
   }
 }
