@@ -2,6 +2,8 @@
 
 Package Flutter hỗ trợ lịch âm-dương với đầy đủ tính năng chọn ngày, quản lý sự kiện và hiển thị ngày lễ.
 
+![demo image from docs](./docs/images/demo.png)
+
 ## Tính năng
 
 ### 1. Hiển thị Lịch
