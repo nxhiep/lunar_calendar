@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:lunar_calendar/lunar_calendar.dart';
+import 'package:lunar_calendar_plus/lunar_calendar.dart';
 
 void main() {
   runApp(const MyApp());

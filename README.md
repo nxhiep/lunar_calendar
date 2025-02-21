@@ -1,4 +1,4 @@
-# Lunar Calendar
+# Lunar Calendar Plus
 
 Package Flutter hỗ trợ lịch âm-dương với tính năng hiển thị ngày và quản lý sự kiện.
 
@@ -32,7 +32,7 @@ Thêm dependency vào `pubspec.yaml`:
 
 ```yaml
 dependencies:
-  lunar_calendar: ^1.0.0
+  lunar_calendar_plus: ^1.0.0
 ```
 
 ## Sử dụng

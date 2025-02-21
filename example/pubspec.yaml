@@ -8,7 +8,7 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  lunar_calendar:
+  lunar_calendar_plus:
     path: ../ 
 
 dev_dependencies:

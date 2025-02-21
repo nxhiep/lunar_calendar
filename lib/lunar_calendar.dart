@@ -1,4 +1,4 @@
-library lunar_calendar;
+library lunar_calendar_plus;
 
 // Localization
 export 'src/localization/lunar_calendar_localization.dart';
