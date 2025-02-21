@@ -1,6 +1,6 @@
 # Lunar Calendar
 
-Package Flutter hỗ trợ lịch âm-dương với đầy đủ tính năng chọn ngày, quản lý sự kiện và hiển thị ngày lễ.
+Package Flutter hỗ trợ lịch âm-dương với tính năng hiển thị ngày và quản lý sự kiện.
 
 ![demo image from docs](./docs/images/demo.png)
 
@@ -8,37 +8,25 @@ Package Flutter hỗ trợ lịch âm-dương với đầy đủ tính năng ch�
 
 ### 1. Hiển thị Lịch
 - Hiển thị song song cả ngày âm lịch và dương lịch
-- Chế độ xem theo tháng/năm
-- Điều hướng giữa các tháng/năm bằng nút hoặc vuốt
+- Chế độ xem theo tháng
+- Điều hướng giữa các tháng bằng nút hoặc vuốt
 - Đánh dấu ngày hiện tại
-- Hiển thị các thông tin phong thủy: Can chi, giờ hoàng đạo, ngày tốt/xấu
+- Tùy chọn hiển thị/ẩn ngày của tháng khác
+- Nút quay về ngày hiện tại
 
-### 2. Chọn Ngày
-- Chọn một hoặc nhiều ngày
-- Chuyển đổi qua lại giữa ngày âm lịch và dương lịch
-- Tìm kiếm nhanh ngày âm/dương lịch
+### 2. Quản lý Sự kiện
+- Hiển thị sự kiện theo ngày được chọn
+- Hỗ trợ nhiều loại sự kiện với biểu tượng trực quan:
+  - Sinh nhật (🎂)
+  - Cuộc họp (👥)
+  - Ngày lễ (🎉)
+  - Nhắc nhở (🔔)
+  - Công việc (✓)
+  - Kỷ niệm (❤️)
+- Hỗ trợ cả ngày âm lịch và dương lịch
+- Tùy chọn lặp lại sự kiện theo năm hoặc tháng
 
-### 3. Quản lý Sự kiện
-- Thêm/sửa/xóa sự kiện cho ngày đã chọn
-- Đặt nhắc nhở cho sự kiện
-- Lặp lại sự kiện theo chu kỳ (hàng năm, hàng tháng)
-- Xuất/nhập danh sách sự kiện
-
-### 4. Ngày Lễ và Sự kiện Đặc biệt
-Tự động đánh dấu và hiển thị:
-- Tết Âm lịch và các ngày trong dịp Tết
-- Rằm các tháng (15 âm lịch)
-- Lễ hội truyền thống theo âm lịch
-- Các ngày lễ theo dương lịch
-- Các ngày cuối tuần
-
-## Bắt đầu
-
-### Yêu cầu
-- Flutter SDK ≥ 2.5.0
-- Dart SDK ≥ 2.14.0
-
-### Cài đặt
+## Cài đặt
 
 Thêm dependency vào `pubspec.yaml`:
 
@@ -53,7 +41,6 @@ dependencies:
 
 ```dart
 LunarCalendar(
-  initialDate: DateTime.now(),
   onDateSelected: (date) {
     print('Selected date: $date');
   },
@@ -66,7 +53,13 @@ LunarCalendar(
 LunarCalendar(
   events: [
     LunarEvent(
+      title: 'Sinh nhật',
+      type: 'birthday',
+      solarDate: DateTime(2024, 3, 15),
+    ),
+    LunarEvent(
       title: 'Giỗ ông',
+      type: 'anniversary',
       lunarDate: LunarDate(day: 15, month: 7, year: 2024),
       isYearlyRecurring: true,
     ),
@@ -79,23 +72,42 @@ LunarCalendar(
 ```dart
 LunarCalendar(
   theme: LunarCalendarTheme(
-    selectedDayColor: Colors.red,
-    holidayTextStyle: TextStyle(color: Colors.red),
-    weekendTextStyle: TextStyle(color: Colors.blue),
+    primaryColor: Colors.blue,
+    textColor: Colors.black87,
+    backgroundColor: Colors.white,
+    sundayColor: Colors.red,
+    saturdayColor: Colors.blue,
   ),
+  showOutsideDays: false,
+  showTodayButton: true,
+  maxWidth: 400,
 )
 ```
 
 ## API Reference
 
-Xem tài liệu API đầy đủ tại [documentation](docs/API.md).
+### LunarCalendar
+| Property | Type | Description |
+|----------|------|-------------|
+| theme | LunarCalendarTheme? | Theme tùy chỉnh cho calendar |
+| localization | LunarCalendarLocalization? | Cấu hình ngôn ngữ |
+| onDateSelected | ValueChanged<DateTime>? | Callback khi chọn ngày |
+| showOutsideDays | bool? | Hiển thị ngày của tháng khác |
+| events | List<LunarEvent> | Danh sách sự kiện |
+| maxWidth | double? | Chiều rộng tối đa của calendar |
+| showTodayButton | bool | Hiển thị nút Today |
 
-## Đóng góp
-
-Chúng tôi rất hoan nghênh mọi đóng góp cho package. Bạn có thể:
-- Báo lỗi hoặc đề xuất tính năng mới qua Issues
-- Tạo Pull Request để cải thiện code
-- Cải thiện tài liệu
+### LunarEvent
+| Property | Type | Description |
+|----------|------|-------------|
+| title | String | Tiêu đề sự kiện |
+| description | String? | Mô tả sự kiện |
+| type | String? | Loại sự kiện (birthday, meeting, holiday, reminder, task, anniversary) |
+| lunarDate | LunarDate? | Ngày âm lịch |
+| solarDate | DateTime? | Ngày dương lịch |
+| isYearlyRecurring | bool | Lặp lại hàng năm |
+| isMonthlyRecurring | bool | Lặp lại hàng tháng |
+| color | Color? | Màu sắc sự kiện |
 
 ## License
 

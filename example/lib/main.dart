@@ -97,7 +97,34 @@ class _MyHomePageState extends State<MyHomePage> {
             title: 'Ngày Valentine',
             solarDate: DateTime(2025, 2, 14),
           ),
-          // Thêm các sự kiện khác...
+          LunarEvent(
+            title: 'Ngày Valentine',
+            solarDate: DateTime(2025, 2, 14),
+          ),
+          LunarEvent(
+            title: 'Ngày Valentine',
+            solarDate: DateTime(2025, 2, 14),
+          ),
+          LunarEvent(
+            title: 'Ngày Valentine',
+            solarDate: DateTime(2025, 2, 14),
+          ),
+          LunarEvent(
+            title: 'Ngày Valentine',
+            solarDate: DateTime(2025, 2, 14),
+          ),
+          LunarEvent(
+            title: 'Ngày Valentine',
+            solarDate: DateTime(2025, 2, 14),
+          ),
+          LunarEvent(
+            title: 'Ngày Valentine',
+            solarDate: DateTime(2025, 2, 14),
+          ),
+          LunarEvent(
+            title: 'Ngày Valentine',
+            solarDate: DateTime(2025, 2, 14),
+          ),
         ],
       ),
     );

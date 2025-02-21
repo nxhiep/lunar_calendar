@@ -68,6 +68,7 @@ class LunarCalendarLocalization {
       'all_day': 'cả ngày',
       'calendar': 'Lịch',
       'inbox': 'Hộp thư đến',
+      'events': 'Sự kiện',
     },
   );
 
@@ -133,6 +134,7 @@ class LunarCalendarLocalization {
       'all_day': 'all day',
       'calendar': 'Calendar',
       'inbox': 'Inbox',
+      'events': 'Events',
     },
   );
 

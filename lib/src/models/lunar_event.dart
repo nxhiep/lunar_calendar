@@ -29,6 +29,9 @@ class LunarEvent {
   /// Thời gian nhắc nhở sự kiện
   final DateTime? reminder;
 
+  /// Loại sự kiện
+  final String? type;
+
   /// Constructor
   const LunarEvent({
     required this.title,
@@ -39,6 +42,7 @@ class LunarEvent {
     this.isMonthlyRecurring = false,
     this.color,
     this.reminder,
+    this.type,
   }) : assert(
           lunarDate != null || solarDate != null,
           'Phải có ít nhất một trong hai: ngày âm lịch hoặc dương lịch',
@@ -54,6 +58,7 @@ class LunarEvent {
     bool? isMonthlyRecurring,
     Color? color,
     DateTime? reminder,
+    String? type,
   }) {
     return LunarEvent(
       title: title ?? this.title,
@@ -64,6 +69,7 @@ class LunarEvent {
       isMonthlyRecurring: isMonthlyRecurring ?? this.isMonthlyRecurring,
       color: color ?? this.color,
       reminder: reminder ?? this.reminder,
+      type: type ?? this.type,
     );
   }
 
@@ -75,7 +81,8 @@ class LunarEvent {
         other.lunarDate == lunarDate &&
         other.solarDate == solarDate &&
         other.isYearlyRecurring == isYearlyRecurring &&
-        other.isMonthlyRecurring == isMonthlyRecurring;
+        other.isMonthlyRecurring == isMonthlyRecurring &&
+        other.type == type;
   }
 
   @override
@@ -86,6 +93,7 @@ class LunarEvent {
       solarDate,
       isYearlyRecurring,
       isMonthlyRecurring,
+      type,
     );
   }
 
@@ -113,6 +121,7 @@ class LunarEvent {
       reminder: json['reminder'] != null
           ? DateTime.parse(json['reminder'] as String)
           : null,
+      type: json['type'] as String?,
     );
   }
 
@@ -126,6 +135,7 @@ class LunarEvent {
       'isMonthlyRecurring': isMonthlyRecurring,
       'color': color?.value,
       'reminder': reminder?.toIso8601String(),
+      'type': type,
     };
   }
 
