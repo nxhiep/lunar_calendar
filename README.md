@@ -2,7 +2,7 @@
 
 Package Flutter hỗ trợ lịch âm-dương với tính năng hiển thị ngày và quản lý sự kiện.
 
-![demo image from docs](./docs/images/demo.png)
+![demo image from docs](https://github.com/Nghi-NV/lunar_calendar/blob/main/docs/images/demo.png)
 
 ## Tính năng
 
