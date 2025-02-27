@@ -1,3 +1,5 @@
+import '../../lunar_calendar.dart';
+
 /// Model biểu diễn ngày âm lịch
 class LunarDate {
   /// Ngày âm lịch (1-30)
@@ -26,14 +28,20 @@ class LunarDate {
 
   /// Tạo LunarDate từ DateTime (dương lịch)
   static LunarDate fromSolar(DateTime solarDate) {
-    // TODO: Implement conversion logic
-    throw UnimplementedError();
+    return LunarUtils.solarToLunar(solarDate);
   }
 
   /// Chuyển đổi sang DateTime (dương lịch)
   DateTime toSolar() {
-    // TODO: Implement conversion logic
-    throw UnimplementedError();
+    final currentTimeZone = DateTime.now().timeZoneOffset.inHours;
+    final date = LunarUtils.lunarToSolar(
+      day,
+      month,
+      year,
+      isLeapMonth ? 1 : 0,
+      currentTimeZone.toDouble(),
+    );
+    return DateTime(date[2], date[1], date[0]);
   }
 
   LunarDate copyWith({

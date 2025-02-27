@@ -2,6 +2,7 @@ import 'package:flutter/material.dart' hide DateUtils;
 
 import '../localization/lunar_calendar_localization.dart';
 import '../models/calendar_view.dart';
+import '../models/lunar_date.dart';
 import '../models/lunar_event.dart';
 import '../theme/lunar_calendar_theme.dart';
 import '../utils/date_utils.dart';
@@ -14,7 +15,7 @@ class LunarCalendar extends StatefulWidget {
 
   final LunarCalendarLocalization? localization;
 
-  final ValueChanged<DateTime>? onDateSelected;
+  final Function(DateTime solarDate, LunarDate lunarDate)? onDateSelected;
 
   /// Có hiển thị ngày của tháng khác không
   final bool? showOutsideDays;
@@ -26,6 +27,12 @@ class LunarCalendar extends StatefulWidget {
   /// Có hiển thị nút Today không
   final bool showTodayButton;
 
+  /// Ngày dương lịch ban đầu được chọn
+  final DateTime? initialSolarDate;
+
+  /// Ngày âm lịch ban đầu được chọn
+  final LunarDate? initialLunarDate;
+
   const LunarCalendar({
     super.key,
     this.theme,
@@ -35,6 +42,8 @@ class LunarCalendar extends StatefulWidget {
     this.events = const [],
     this.maxWidth,
     this.showTodayButton = true, // Mặc định là hiển thị
+    this.initialSolarDate,
+    this.initialLunarDate,
   });
 
   @override
@@ -51,10 +60,33 @@ class _LunarCalendarState extends State<LunarCalendar> {
   @override
   void initState() {
     super.initState();
-    _selectedDate = DateTime.now();
-    _displayedMonth = DateTime.now();
+
+    // Sử dụng initialSolarDate nếu được cung cấp, nếu không thì sử dụng ngày hiện tại
+    _selectedDate = widget.initialSolarDate ?? DateTime.now();
+
+    // Nếu initialLunarDate được cung cấp, chuyển đổi nó thành ngày dương lịch và sử dụng
+    if (widget.initialLunarDate != null) {
+      try {
+        // Chuyển đổi từ âm lịch sang dương lịch
+        final solarDate = widget.initialLunarDate!.toSolar();
+
+        if (solarDate.year > 0) {
+          _selectedDate = solarDate;
+        }
+      } catch (e) {
+        // Nếu có lỗi khi chuyển đổi, giữ nguyên giá trị mặc định
+      }
+    }
+
+    // Hiển thị tháng chứa ngày được chọn
+    _displayedMonth = DateTime(_selectedDate.year, _selectedDate.month, 1);
     _currentView = CalendarView.month;
-    _pageController = PageController(initialPage: _initialPage);
+
+    // Tính toán trang ban đầu dựa trên sự chênh lệch tháng
+    final now = DateTime.now();
+    final monthDiff = (_displayedMonth.year - now.year) * 12 +
+        (_displayedMonth.month - now.month);
+    _pageController = PageController(initialPage: _initialPage + monthDiff);
   }
 
   @override
@@ -101,8 +133,8 @@ class _LunarCalendarState extends State<LunarCalendar> {
             ? widget.maxWidth!
             : deviceWidth
         : deviceWidth;
-    final heightOfCell = (theme.fontSize + theme.subtextFontSize) * 1.25 + 10;
-    final calendarHeight = 5 * heightOfCell + 5 * 8;
+    final heightOfCell = (theme.fontSize + theme.subtextFontSize) * 1.5 + 16;
+    final calendarHeight = 5 * heightOfCell;
 
     final monthEvents = _getEventsForDate();
 
@@ -171,7 +203,7 @@ class _LunarCalendarState extends State<LunarCalendar> {
           if (_currentView.isMonth && monthEvents.isNotEmpty) ...[
             const SizedBox(height: 12),
             Padding(
-              padding: const EdgeInsets.all(16),
+              padding: const EdgeInsets.only(left: 16, right: 16, bottom: 16),
               child: Text(
                 localization.get('events'),
                 style: TextStyle(
@@ -239,8 +271,7 @@ class _LunarCalendarState extends State<LunarCalendar> {
     double heightOfCell,
   ) {
     final days = DateUtils.daysInMonth(month);
-    final widthOfCell = (maxWidth - 8 * 7) / 7;
-    final childAspectRatio = widthOfCell / heightOfCell;
+    final widthOfCell = maxWidth / 7;
 
     return Container(
       width: maxWidth,
@@ -250,7 +281,7 @@ class _LunarCalendarState extends State<LunarCalendar> {
         physics: const NeverScrollableScrollPhysics(),
         gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
           crossAxisCount: 7,
-          childAspectRatio: childAspectRatio,
+          childAspectRatio: widthOfCell / heightOfCell,
           mainAxisSpacing: 8,
           crossAxisSpacing: 8,
         ),
@@ -350,6 +381,7 @@ class _LunarCalendarState extends State<LunarCalendar> {
 
   void _onDateTapped(DateTime date) {
     setState(() => _selectedDate = date);
-    widget.onDateSelected?.call(date);
+    final lunarDate = LunarUtils.solarToLunar(date);
+    widget.onDateSelected?.call(date, lunarDate);
   }
 }

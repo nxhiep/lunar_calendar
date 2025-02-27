@@ -62,6 +62,13 @@ class _MyHomePageState extends State<MyHomePage> {
 
   @override
   Widget build(BuildContext context) {
+    const testLunarDate = LunarDate(
+      day: 1,
+      month: 1,
+      year: 2025,
+      isLeapMonth: false,
+    );
+
     return Scaffold(
       appBar: AppBar(
         title: const Text('Calendar Example'),
@@ -89,8 +96,10 @@ class _MyHomePageState extends State<MyHomePage> {
         localization: _isVietnamese
             ? LunarCalendarLocalization.vi
             : LunarCalendarLocalization.en,
-        onDateSelected: (date) {
+        initialLunarDate: testLunarDate,
+        onDateSelected: (date, lunarDate) {
           print('Selected date: $date');
+          print('Selected lunar date: $lunarDate');
         },
         events: [
           LunarEvent(
