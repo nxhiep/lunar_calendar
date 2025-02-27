@@ -69,6 +69,14 @@ class LunarCalendarLocalization {
       'calendar': 'Lịch',
       'inbox': 'Hộp thư đến',
       'events': 'Sự kiện',
+      'select_date': 'Chọn ngày',
+      'solar_calendar': 'Lịch dương',
+      'lunar_calendar': 'Lịch âm',
+      'confirm': 'Xác nhận',
+      'choose_date': 'Chọn ngày',
+      'selected_date': 'Ngày đã chọn',
+      'day': 'Ngày',
+      'leap_month': 'Nhuận',
     },
   );
 
@@ -135,6 +143,14 @@ class LunarCalendarLocalization {
       'calendar': 'Calendar',
       'inbox': 'Inbox',
       'events': 'Events',
+      'select_date': 'Select Date',
+      'solar_calendar': 'Solar Calendar',
+      'lunar_calendar': 'Lunar Calendar',
+      'confirm': 'Confirm',
+      'choose_date': 'Choose Date',
+      'selected_date': 'Selected Date',
+      'day': 'Day',
+      'leap_month': 'Leap',
     },
   );
 

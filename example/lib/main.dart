@@ -89,50 +89,65 @@ class _MyHomePageState extends State<MyHomePage> {
           ),
         ],
       ),
-      body: LunarCalendar(
-        theme: widget.isDarkMode ? LunarCalendarTheme.dark : null,
-        showOutsideDays: false,
-        showTodayButton: true,
-        localization: _isVietnamese
-            ? LunarCalendarLocalization.vi
-            : LunarCalendarLocalization.en,
-        initialLunarDate: testLunarDate,
-        onDateSelected: (date, lunarDate) {
-          print('Selected date: $date');
-          print('Selected lunar date: $lunarDate');
-        },
-        events: [
-          LunarEvent(
-            title: 'Ngày Valentine',
-            solarDate: DateTime(2025, 2, 14),
+      body: Column(
+        children: [
+          LunarCalendarPicker(
+            initialSolarDate: DateTime(2025, 2, 14),
+            maxWidth: 300,
+            onDateSelected: (date, lunarDate) {
+              print('Selected date: $date');
+              print('Selected lunar date: $lunarDate');
+            },
           ),
-          LunarEvent(
-            title: 'Ngày Valentine',
-            solarDate: DateTime(2025, 2, 14),
-          ),
-          LunarEvent(
-            title: 'Ngày Valentine',
-            solarDate: DateTime(2025, 2, 14),
-          ),
-          LunarEvent(
-            title: 'Ngày Valentine',
-            solarDate: DateTime(2025, 2, 14),
-          ),
-          LunarEvent(
-            title: 'Ngày Valentine',
-            solarDate: DateTime(2025, 2, 14),
-          ),
-          LunarEvent(
-            title: 'Ngày Valentine',
-            solarDate: DateTime(2025, 2, 14),
-          ),
-          LunarEvent(
-            title: 'Ngày Valentine',
-            solarDate: DateTime(2025, 2, 14),
-          ),
-          LunarEvent(
-            title: 'Ngày Valentine',
-            solarDate: DateTime(2025, 2, 14),
+          const SizedBox(height: 16),
+          Expanded(
+            child: LunarCalendar(
+              theme: widget.isDarkMode ? LunarCalendarTheme.dark : null,
+              showOutsideDays: false,
+              showTodayButton: true,
+              localization: _isVietnamese
+                  ? LunarCalendarLocalization.vi
+                  : LunarCalendarLocalization.en,
+              initialLunarDate: testLunarDate,
+              onDateSelected: (date, lunarDate) {
+                print('Selected date: $date');
+                print('Selected lunar date: $lunarDate');
+              },
+              events: [
+                LunarEvent(
+                  title: 'Ngày Valentine',
+                  solarDate: DateTime(2025, 2, 14),
+                ),
+                LunarEvent(
+                  title: 'Ngày Valentine',
+                  solarDate: DateTime(2025, 2, 14),
+                ),
+                LunarEvent(
+                  title: 'Ngày Valentine',
+                  solarDate: DateTime(2025, 2, 14),
+                ),
+                LunarEvent(
+                  title: 'Ngày Valentine',
+                  solarDate: DateTime(2025, 2, 14),
+                ),
+                LunarEvent(
+                  title: 'Ngày Valentine',
+                  solarDate: DateTime(2025, 2, 14),
+                ),
+                LunarEvent(
+                  title: 'Ngày Valentine',
+                  solarDate: DateTime(2025, 2, 14),
+                ),
+                LunarEvent(
+                  title: 'Ngày Valentine',
+                  solarDate: DateTime(2025, 2, 14),
+                ),
+                LunarEvent(
+                  title: 'Ngày Valentine',
+                  solarDate: DateTime(2025, 2, 14),
+                ),
+              ],
+            ),
           ),
         ],
       ),

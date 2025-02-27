@@ -14,3 +14,4 @@ export 'src/widgets/calendar_header.dart';
 export 'src/widgets/day_cell.dart';
 // Widgets
 export 'src/widgets/lunar_calendar.dart';
+export 'src/widgets/lunar_calendar_picker.dart';

@@ -138,6 +138,8 @@ class _LunarCalendarState extends State<LunarCalendar> {
 
     final monthEvents = _getEventsForDate();
 
+    print('maxWidth: $maxWidth');
+
     return Material(
       color: theme.backgroundColor,
       child: Column(

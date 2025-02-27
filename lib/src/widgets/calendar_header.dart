@@ -47,7 +47,7 @@ class CalendarHeader extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.only(left: 16, right: 4, top: 16, bottom: 8),
+      padding: const EdgeInsets.only(left: 16, right: 4, bottom: 4),
       constraints: BoxConstraints(maxWidth: maxWidth ?? double.infinity),
       width: maxWidth,
       child: Row(

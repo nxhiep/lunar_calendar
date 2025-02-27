@@ -1,3 +1,21 @@
+## 1.1.0
+
+### Tính năng mới
+- Thêm widget LunarCalendarPicker cho phép chọn ngày dễ dàng
+- Hỗ trợ hiển thị theo định dạng âm lịch hoặc dương lịch
+- Tùy chỉnh text và icon hiển thị cho LunarCalendarPicker
+- Bottom sheet picker tích hợp với LunarCalendar
+
+### Cải tiến
+- Cập nhật callback onDateSelected để trả về cả ngày âm lịch và dương lịch
+- Tối ưu hóa hiệu suất khi chuyển đổi giữa các tháng
+- Cải thiện giao diện người dùng cho bottom sheet picker
+
+### Sửa lỗi
+- Sửa lỗi hiển thị ngày âm lịch không chính xác trong một số trường hợp
+- Sửa lỗi định dạng ngày khi sử dụng dateFormat tùy chỉnh
+- Sửa lỗi không cập nhật lại ngày khi thay đổi theme
+
 ## 1.0.0
 
 ### Tính năng
