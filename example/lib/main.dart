@@ -69,6 +69,8 @@ class _MyHomePageState extends State<MyHomePage> {
       isLeapMonth: false,
     );
 
+    final deviceWidth = MediaQuery.of(context).size.width;
+
     return Scaffold(
       appBar: AppBar(
         title: const Text('Calendar Example'),
@@ -93,7 +95,6 @@ class _MyHomePageState extends State<MyHomePage> {
         children: [
           LunarCalendarPicker(
             initialSolarDate: DateTime(2025, 2, 14),
-            maxWidth: 300,
             onDateSelected: (date, lunarDate) {
               print('Selected date: $date');
               print('Selected lunar date: $lunarDate');
@@ -101,52 +102,56 @@ class _MyHomePageState extends State<MyHomePage> {
           ),
           const SizedBox(height: 16),
           Expanded(
-            child: LunarCalendar(
-              theme: widget.isDarkMode ? LunarCalendarTheme.dark : null,
-              showOutsideDays: false,
-              showTodayButton: true,
-              localization: _isVietnamese
-                  ? LunarCalendarLocalization.vi
-                  : LunarCalendarLocalization.en,
-              initialLunarDate: testLunarDate,
-              onDateSelected: (date, lunarDate) {
-                print('Selected date: $date');
-                print('Selected lunar date: $lunarDate');
-              },
-              events: [
-                LunarEvent(
-                  title: 'Ngày Valentine',
-                  solarDate: DateTime(2025, 2, 14),
-                ),
-                LunarEvent(
-                  title: 'Ngày Valentine',
-                  solarDate: DateTime(2025, 2, 14),
-                ),
-                LunarEvent(
-                  title: 'Ngày Valentine',
-                  solarDate: DateTime(2025, 2, 14),
-                ),
-                LunarEvent(
-                  title: 'Ngày Valentine',
-                  solarDate: DateTime(2025, 2, 14),
-                ),
-                LunarEvent(
-                  title: 'Ngày Valentine',
-                  solarDate: DateTime(2025, 2, 14),
-                ),
-                LunarEvent(
-                  title: 'Ngày Valentine',
-                  solarDate: DateTime(2025, 2, 14),
-                ),
-                LunarEvent(
-                  title: 'Ngày Valentine',
-                  solarDate: DateTime(2025, 2, 14),
-                ),
-                LunarEvent(
-                  title: 'Ngày Valentine',
-                  solarDate: DateTime(2025, 2, 14),
-                ),
-              ],
+            child: Padding(
+              padding: const EdgeInsets.all(20),
+              child: LunarCalendar(
+                theme: widget.isDarkMode ? LunarCalendarTheme.dark : null,
+                showOutsideDays: false,
+                showTodayButton: true,
+                maxWidth: deviceWidth - 40,
+                localization: _isVietnamese
+                    ? LunarCalendarLocalization.vi
+                    : LunarCalendarLocalization.en,
+                initialLunarDate: testLunarDate,
+                onDateSelected: (date, lunarDate) {
+                  print('Selected date: $date');
+                  print('Selected lunar date: $lunarDate');
+                },
+                events: [
+                  LunarEvent(
+                    title: 'Ngày Valentine',
+                    solarDate: DateTime(2025, 2, 14),
+                  ),
+                  LunarEvent(
+                    title: 'Ngày Valentine',
+                    solarDate: DateTime(2025, 2, 14),
+                  ),
+                  LunarEvent(
+                    title: 'Ngày Valentine',
+                    solarDate: DateTime(2025, 2, 14),
+                  ),
+                  LunarEvent(
+                    title: 'Ngày Valentine',
+                    solarDate: DateTime(2025, 2, 14),
+                  ),
+                  LunarEvent(
+                    title: 'Ngày Valentine',
+                    solarDate: DateTime(2025, 2, 14),
+                  ),
+                  LunarEvent(
+                    title: 'Ngày Valentine',
+                    solarDate: DateTime(2025, 2, 14),
+                  ),
+                  LunarEvent(
+                    title: 'Ngày Valentine',
+                    solarDate: DateTime(2025, 2, 14),
+                  ),
+                  LunarEvent(
+                    title: 'Ngày Valentine',
+                    solarDate: DateTime(2025, 2, 14),
+                  ),
+                ],
+              ),
             ),
           ),
         ],

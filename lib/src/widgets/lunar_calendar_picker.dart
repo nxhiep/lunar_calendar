@@ -97,7 +97,6 @@ class _LunarCalendarPickerState extends State<LunarCalendarPicker> {
   Widget build(BuildContext context) {
     final theme =
         widget.theme ?? LunarCalendarTheme.fromTheme(Theme.of(context));
-    final localization = widget.localization ?? LunarCalendarLocalization.vi;
 
     if (widget.dateText != null) {
       return TextButton(

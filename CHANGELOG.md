@@ -1,3 +1,7 @@
+## 1.1.3
+
+- Tự động tính maxWidth
+
 ## 1.1.2
 
 - Update docs

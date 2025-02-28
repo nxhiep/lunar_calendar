@@ -126,100 +126,100 @@ class _LunarCalendarState extends State<LunarCalendar> {
     );
     final localization = widget.localization ?? LunarCalendarLocalization.vi;
 
-    final deviceWidth = MediaQuery.of(context).size.width;
-
-    final maxWidth = widget.maxWidth != null
-        ? deviceWidth > widget.maxWidth!
-            ? widget.maxWidth!
-            : deviceWidth
-        : deviceWidth;
-    final heightOfCell = (theme.fontSize + theme.subtextFontSize) * 1.5 + 16;
-    final calendarHeight = 5 * heightOfCell;
-
     final monthEvents = _getEventsForDate();
 
-    print('maxWidth: $maxWidth');
+    return LayoutBuilder(builder: (context, constraints) {
+      final deviceWidth = constraints.maxWidth;
 
-    return Material(
-      color: theme.backgroundColor,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        mainAxisSize: MainAxisSize.max,
-        children: [
-          CalendarHeader(
-            displayedMonth: _displayedMonth,
-            currentView: _currentView,
-            theme: theme,
-            localization: localization,
-            maxWidth: maxWidth,
-            showTodayButton: widget.showTodayButton,
-            onMonthChanged: (date) {
-              final monthDiff = (date.year - _displayedMonth.year) * 12 +
-                  date.month -
-                  _displayedMonth.month;
-              _pageController.animateToPage(
-                _pageController.page!.round() + monthDiff,
-                duration: const Duration(milliseconds: 300),
-                curve: Curves.easeInOut,
-              );
-            },
-            onViewChanged: (view) {
-              setState(() => _currentView = view);
-            },
-            onTodayPressed: () {
-              final now = DateTime.now();
-              setState(() {
-                _selectedDate = now;
-                _displayedMonth = now;
-              });
-              _pageController.jumpToPage(_initialPage);
-            },
-          ),
+      final maxWidth = widget.maxWidth != null
+          ? deviceWidth > widget.maxWidth!
+              ? widget.maxWidth!
+              : deviceWidth
+          : deviceWidth;
+      final heightOfCell = (theme.fontSize + theme.subtextFontSize) * 1.5 + 16;
+      final calendarHeight = 5 * heightOfCell;
 
-          _buildWeekdayHeader(theme, localization, maxWidth),
-          Container(
-            height: calendarHeight,
-            constraints: BoxConstraints(maxWidth: maxWidth),
-            child: PageView.builder(
-              controller: _pageController,
-              scrollDirection: Axis.vertical,
-              onPageChanged: (page) {
-                setState(() {
-                  _displayedMonth = _getMonthForPage(page);
-                });
-              },
-              itemBuilder: (context, page) {
-                final month = _getMonthForPage(page);
-                return _buildMonthView(
-                  theme,
-                  localization,
-                  month,
-                  maxWidth,
-                  calendarHeight,
-                  heightOfCell,
+      return Material(
+        color: theme.backgroundColor,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          mainAxisSize: MainAxisSize.max,
+          children: [
+            CalendarHeader(
+              displayedMonth: _displayedMonth,
+              currentView: _currentView,
+              theme: theme,
+              localization: localization,
+              maxWidth: maxWidth,
+              showTodayButton: widget.showTodayButton,
+              onMonthChanged: (date) {
+                final monthDiff = (date.year - _displayedMonth.year) * 12 +
+                    date.month -
+                    _displayedMonth.month;
+                _pageController.animateToPage(
+                  _pageController.page!.round() + monthDiff,
+                  duration: const Duration(milliseconds: 300),
+                  curve: Curves.easeInOut,
                 );
               },
+              onViewChanged: (view) {
+                setState(() => _currentView = view);
+              },
+              onTodayPressed: () {
+                final now = DateTime.now();
+                setState(() {
+                  _selectedDate = now;
+                  _displayedMonth = now;
+                });
+                _pageController.jumpToPage(_initialPage);
+              },
             ),
-          ),
-          // Event section
-          if (_currentView.isMonth && monthEvents.isNotEmpty) ...[
-            const SizedBox(height: 12),
-            Padding(
-              padding: const EdgeInsets.only(left: 16, right: 16, bottom: 16),
-              child: Text(
-                localization.get('events'),
-                style: TextStyle(
-                  color: theme.textColor,
-                  fontSize: theme.fontSize,
-                  fontWeight: FontWeight.bold,
-                ),
+
+            _buildWeekdayHeader(theme, localization, maxWidth),
+            Container(
+              height: calendarHeight,
+              constraints: BoxConstraints(maxWidth: maxWidth),
+              child: PageView.builder(
+                controller: _pageController,
+                scrollDirection: Axis.vertical,
+                onPageChanged: (page) {
+                  setState(() {
+                    _displayedMonth = _getMonthForPage(page);
+                  });
+                },
+                itemBuilder: (context, page) {
+                  final month = _getMonthForPage(page);
+                  return _buildMonthView(
+                    theme,
+                    localization,
+                    month,
+                    maxWidth,
+                    calendarHeight,
+                    heightOfCell,
+                  );
+                },
               ),
             ),
-            _buildEventSection(theme, localization, maxWidth, monthEvents),
+            // Event section
+            if (_currentView.isMonth && monthEvents.isNotEmpty) ...[
+              const SizedBox(height: 12),
+              Padding(
+                padding: const EdgeInsets.only(left: 16, right: 16, bottom: 16),
+                child: Text(
+                  localization.get('events'),
+                  style: TextStyle(
+                    color: theme.textColor,
+                    fontSize: theme.fontSize,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ),
+              _buildEventSection(theme, localization, maxWidth, monthEvents),
+            ],
           ],
-        ],
-      ),
-    );
+        ),
+      );
+    });
   }
 
   Widget _buildWeekdayHeader(
