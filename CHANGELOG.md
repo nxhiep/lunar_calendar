@@ -1,3 +1,7 @@
+## 1.2.0
+
+- Fix onTodayPressed not call onDateSelected
+
 ## 1.1.3
 
 - Tự động tính maxWidth

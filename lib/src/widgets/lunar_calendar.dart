@@ -171,6 +171,8 @@ class _LunarCalendarState extends State<LunarCalendar> {
                   _selectedDate = now;
                   _displayedMonth = now;
                 });
+
+                widget.onDateSelected?.call(now, LunarUtils.solarToLunar(now));
                 _pageController.jumpToPage(_initialPage);
               },
             ),

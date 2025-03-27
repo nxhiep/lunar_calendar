@@ -1,108 +1,108 @@
 # Lunar Calendar Plus
 
-Package Flutter hỗ trợ lịch âm-dương với tính năng hiển thị ngày và quản lý sự kiện.
+A Flutter package that supports lunar-solar calendar with date display and event management features.
 
 ![demo image from docs](https://raw.githubusercontent.com/Nghi-NV/lunar_calendar/refs/heads/main/docs/images/demo.png)
 
-## Tính năng
+## Features
 
-### 1. Hiển thị Lịch
-- Hiển thị song song cả ngày âm lịch và dương lịch
-- Chế độ xem theo tháng
-- Điều hướng giữa các tháng bằng nút hoặc vuốt
-- Đánh dấu ngày hiện tại
-- Tùy chọn hiển thị/ẩn ngày của tháng khác
-- Nút quay về ngày hiện tại
+### 1. Calendar Display
+- Displays both lunar and solar dates simultaneously
+- Monthly view mode
+- Navigate between months using buttons or swipe gestures
+- Highlight current day
+- Option to show/hide dates from other months
+- Button to return to current date
 
-### 2. Quản lý Sự kiện
-- Hiển thị sự kiện theo ngày được chọn
-- Hỗ trợ nhiều loại sự kiện với biểu tượng trực quan:
-  - Sinh nhật (🎂)
-  - Cuộc họp (👥)
-  - Ngày lễ (🎉)
-  - Nhắc nhở (🔔)
-  - Công việc (✓)
-  - Kỷ niệm (❤️)
-- Hỗ trợ cả ngày âm lịch và dương lịch
-- Tùy chọn lặp lại sự kiện theo năm hoặc tháng
+### 2. Event Management
+- Display events for selected dates
+- Supports multiple event types with intuitive icons:
+  - Birthday (🎂)
+  - Meeting (👥)
+  - Holiday (🎉)
+  - Reminder (🔔)
+  - Task (✓)
+  - Anniversary (❤️)
+- Supports both lunar and solar dates
+- Option for yearly or monthly recurring events
 
-### 3. Widget Chọn Ngày
-- Widget LunarCalendarPicker cho phép chọn ngày dễ dàng
-- Hỗ trợ hiển thị theo định dạng âm lịch hoặc dương lịch
-- Tùy chỉnh text và icon hiển thị
-- Bottom sheet picker tích hợp
+### 3. Date Picker Widget
+- LunarCalendarPicker widget for easy date selection
+- Supports display in lunar or solar date format
+- Customizable text and icon display
+- Integrated bottom sheet picker
 
-## Cài đặt
+## Installation
 
-Thêm dependency vào `pubspec.yaml`:
+Add this to your `pubspec.yaml` dependencies:
 
 ```yaml
 dependencies:
   lunar_calendar_plus: ^1.0.0
 ```
 
-## Sử dụng
+## Usage
 
-### Khởi tạo Calendar Widget cơ bản
+### Basic Calendar Widget Initialization
 
 ```dart
 LunarCalendar(
   onDateSelected: (solarDate, lunarDate) {
-    print('Ngày dương: $solarDate');
-    print('Ngày âm: $lunarDate');
+    print('Solar date: $solarDate');
+    print('Lunar date: $lunarDate');
   },
 )
 ```
 
-### Sử dụng LunarCalendarPicker
+### Using LunarCalendarPicker
 
 ```dart
-// Hiển thị ngày dương lịch (mặc định)
+// Display solar date (default)
 LunarCalendarPicker(
   initialSolarDate: DateTime.now(),
   onDateSelected: (solarDate, lunarDate) {
-    print('Ngày dương: $solarDate');
-    print('Ngày âm: $lunarDate');
+    print('Solar date: $solarDate');
+    print('Lunar date: $lunarDate');
   },
 );
 
-// Hiển thị ngày âm lịch
+// Display lunar date
 LunarCalendarPicker(
   initialSolarDate: DateTime.now(),
   onDateSelected: (solarDate, lunarDate) {
-    print('Ngày dương: $solarDate');
-    print('Ngày âm: $lunarDate');
+    print('Solar date: $solarDate');
+    print('Lunar date: $lunarDate');
   },
   displayMode: 'lunar',
   showLunarDate: true,
 );
 
-// Tùy chỉnh hiển thị
+// Customize display
 LunarCalendarPicker(
   initialSolarDate: DateTime.now(),
   onDateSelected: (solarDate, lunarDate) {
-    print('Ngày dương: $solarDate');
-    print('Ngày âm: $lunarDate');
+    print('Solar date: $solarDate');
+    print('Lunar date: $lunarDate');
   },
-  dateText: 'Chọn ngày',
+  dateText: 'Select date',
   dateFormat: 'dd/MM/yyyy',
   icon: Icons.calendar_today,
   iconColor: Colors.blue,
 );
 ```
 
-### Thêm sự kiện
+### Adding Events
 
 ```dart
 LunarCalendar(
   events: [
     LunarEvent(
-      title: 'Sinh nhật',
+      title: 'Birthday',
       type: 'birthday',
       solarDate: DateTime(2024, 3, 15),
     ),
     LunarEvent(
-      title: 'Giỗ ông',
+      title: 'Grandfather\'s Death Anniversary',
       type: 'anniversary',
       lunarDate: LunarDate(day: 15, month: 7, year: 2024),
       isYearlyRecurring: true,
@@ -111,7 +111,7 @@ LunarCalendar(
 )
 ```
 
-### Tùy chỉnh giao diện
+### Customizing Interface
 
 ```dart
 LunarCalendar(
@@ -133,42 +133,42 @@ LunarCalendar(
 ### LunarCalendar
 | Property | Type | Description |
 |----------|------|-------------|
-| theme | LunarCalendarTheme? | Theme tùy chỉnh cho calendar |
-| localization | LunarCalendarLocalization? | Cấu hình ngôn ngữ |
-| onDateSelected | Function(DateTime, LunarDate)? | Callback khi chọn ngày |
-| showOutsideDays | bool? | Hiển thị ngày của tháng khác |
-| events | List<LunarEvent> | Danh sách sự kiện |
-| maxWidth | double? | Chiều rộng tối đa của calendar |
-| showTodayButton | bool | Hiển thị nút Today |
+| theme | LunarCalendarTheme? | Custom theme for calendar |
+| localization | LunarCalendarLocalization? | Language configuration |
+| onDateSelected | Function(DateTime, LunarDate)? | Callback when date is selected |
+| showOutsideDays | bool? | Show dates from other months |
+| events | List<LunarEvent> | List of events |
+| maxWidth | double? | Maximum width of calendar |
+| showTodayButton | bool | Show Today button |
 
 ### LunarCalendarPicker
 | Property | Type | Description |
 |----------|------|-------------|
-| initialSolarDate | DateTime | Ngày dương lịch ban đầu |
-| onDateSelected | Function(DateTime, LunarDate) | Callback khi chọn ngày |
-| theme | LunarCalendarTheme? | Theme tùy chỉnh |
-| localization | LunarCalendarLocalization? | Cấu hình ngôn ngữ |
-| showLunarDate | bool | Hiển thị ngày âm lịch |
-| dateFormat | String? | Định dạng hiển thị ngày |
-| textStyle | TextStyle? | Style cho text |
-| icon | IconData? | Icon hiển thị |
-| iconColor | Color? | Màu của icon |
-| iconSpacing | double | Khoảng cách giữa icon và text |
-| dateText | String? | Text hiển thị thay cho ngày |
-| displayMode | String | Chế độ hiển thị ('solar' hoặc 'lunar') |
+| initialSolarDate | DateTime | Initial solar date |
+| onDateSelected | Function(DateTime, LunarDate) | Callback when date is selected |
+| theme | LunarCalendarTheme? | Custom theme |
+| localization | LunarCalendarLocalization? | Language configuration |
+| showLunarDate | bool | Show lunar date |
+| dateFormat | String? | Date display format |
+| textStyle | TextStyle? | Style for text |
+| icon | IconData? | Display icon |
+| iconColor | Color? | Icon color |
+| iconSpacing | double | Space between icon and text |
+| dateText | String? | Text to display instead of date |
+| displayMode | String | Display mode ('solar' or 'lunar') |
 
 ### LunarEvent
 | Property | Type | Description |
 |----------|------|-------------|
-| title | String | Tiêu đề sự kiện |
-| description | String? | Mô tả sự kiện |
-| type | String? | Loại sự kiện (birthday, meeting, holiday, reminder, task, anniversary) |
-| lunarDate | LunarDate? | Ngày âm lịch |
-| solarDate | DateTime? | Ngày dương lịch |
-| isYearlyRecurring | bool | Lặp lại hàng năm |
-| isMonthlyRecurring | bool | Lặp lại hàng tháng |
-| color | Color? | Màu sắc sự kiện |
+| title | String | Event title |
+| description | String? | Event description |
+| type | String? | Event type (birthday, meeting, holiday, reminder, task, anniversary) |
+| lunarDate | LunarDate? | Lunar date |
+| solarDate | DateTime? | Solar date |
+| isYearlyRecurring | bool | Yearly recurring |
+| isMonthlyRecurring | bool | Monthly recurring |
+| color | Color? | Event color |
 
 ## License
 
-Package này được phát hành dưới [giấy phép MIT](LICENSE).
+This package is released under the [MIT license](LICENSE).
