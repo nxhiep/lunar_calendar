@@ -137,7 +137,11 @@ class _LunarCalendarState extends State<LunarCalendar> {
               : deviceWidth
           : deviceWidth;
       final heightOfCell = (theme.fontSize + theme.subtextFontSize) * 1.5 + 16;
-      final calendarHeight = 5 * heightOfCell;
+      final displayedMonth = _displayedMonth;
+      final days = DateUtils.daysInMonth(displayedMonth);
+
+      final numberOfRows = days.length ~/ 7;
+      final calendarHeight = numberOfRows * heightOfCell;
 
       return Material(
         color: theme.backgroundColor,

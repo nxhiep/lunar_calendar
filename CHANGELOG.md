@@ -1,3 +1,7 @@
+## 1.2.1
+
+- Fix bug not show full day of the month
+
 ## 1.2.0
 
 - Fix onTodayPressed not call onDateSelected
