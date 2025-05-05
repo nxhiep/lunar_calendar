@@ -33,6 +33,8 @@ class LunarCalendar extends StatefulWidget {
   /// Ngày âm lịch ban đầu được chọn
   final LunarDate? initialLunarDate;
 
+  final bool enableDrag;
+
   const LunarCalendar({
     super.key,
     this.theme,
@@ -44,6 +46,7 @@ class LunarCalendar extends StatefulWidget {
     this.showTodayButton = true, // Mặc định là hiển thị
     this.initialSolarDate,
     this.initialLunarDate,
+    this.enableDrag = true,
   });
 
   @override
@@ -180,32 +183,17 @@ class _LunarCalendarState extends State<LunarCalendar> {
                 _pageController.jumpToPage(_initialPage);
               },
             ),
-
-            _buildWeekdayHeader(theme, localization, maxWidth),
-            Container(
-              height: calendarHeight,
-              constraints: BoxConstraints(maxWidth: maxWidth),
-              child: PageView.builder(
-                controller: _pageController,
-                scrollDirection: Axis.vertical,
-                onPageChanged: (page) {
-                  setState(() {
-                    _displayedMonth = _getMonthForPage(page);
-                  });
+            if (widget.enableDrag)
+              NotificationListener(
+                onNotification: (notification) {
+                  return true;
                 },
-                itemBuilder: (context, page) {
-                  final month = _getMonthForPage(page);
-                  return _buildMonthView(
-                    theme,
-                    localization,
-                    month,
-                    maxWidth,
-                    calendarHeight,
-                    heightOfCell,
-                  );
-                },
-              ),
-            ),
+                child: _buildWeekdayHeader(theme, localization, maxWidth),
+              )
+            else
+              _buildWeekdayHeader(theme, localization, maxWidth),
+            buildCalendar(
+                calendarHeight, maxWidth, theme, localization, heightOfCell),
             // Event section
             if (_currentView.isMonth && monthEvents.isNotEmpty) ...[
               const SizedBox(height: 12),
@@ -220,12 +208,53 @@ class _LunarCalendarState extends State<LunarCalendar> {
                   ),
                 ),
               ),
-              _buildEventSection(theme, localization, maxWidth, monthEvents),
+              if (widget.enableDrag)
+                NotificationListener(
+                  onNotification: (notification) {
+                    return true;
+                  },
+                  child: _buildEventSection(
+                      theme, localization, maxWidth, monthEvents),
+                )
+              else
+                _buildEventSection(theme, localization, maxWidth, monthEvents),
             ],
           ],
         ),
       );
     });
+  }
+
+  Widget buildCalendar(
+      double calendarHeight,
+      double maxWidth,
+      LunarCalendarTheme theme,
+      LunarCalendarLocalization localization,
+      double heightOfCell) {
+    return Container(
+      height: calendarHeight,
+      constraints: BoxConstraints(maxWidth: maxWidth),
+      child: PageView.builder(
+        controller: _pageController,
+        scrollDirection: Axis.vertical,
+        onPageChanged: (page) {
+          setState(() {
+            _displayedMonth = _getMonthForPage(page);
+          });
+        },
+        itemBuilder: (context, page) {
+          final month = _getMonthForPage(page);
+          return _buildMonthView(
+            theme,
+            localization,
+            month,
+            maxWidth,
+            calendarHeight,
+            heightOfCell,
+          );
+        },
+      ),
+    );
   }
 
   Widget _buildWeekdayHeader(

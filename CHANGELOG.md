@@ -1,3 +1,7 @@
+## 1.3.0
+
+- Add enableDrag calendar
+
 ## 1.2.1
 
 - Fix bug not show full day of the month
