@@ -35,6 +35,8 @@ class LunarCalendar extends StatefulWidget {
 
   final bool enableDrag;
 
+  final bool showEvents;
+
   const LunarCalendar({
     super.key,
     this.theme,
@@ -47,6 +49,7 @@ class LunarCalendar extends StatefulWidget {
     this.initialSolarDate,
     this.initialLunarDate,
     this.enableDrag = true,
+    this.showEvents = true,
   });
 
   @override
@@ -195,7 +198,7 @@ class _LunarCalendarState extends State<LunarCalendar> {
             buildCalendar(
                 calendarHeight, maxWidth, theme, localization, heightOfCell),
             // Event section
-            if (_currentView.isMonth && monthEvents.isNotEmpty) ...[
+            if (widget.showEvents && _currentView.isMonth && monthEvents.isNotEmpty) ...[
               const SizedBox(height: 12),
               Padding(
                 padding: const EdgeInsets.only(left: 16, right: 16, bottom: 16),

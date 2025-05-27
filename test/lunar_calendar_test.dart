@@ -47,7 +47,7 @@ void main() {
         MaterialApp(
           home: Scaffold(
             body: LunarCalendar(
-              onDateSelected: (date) {
+              onDateSelected: (date, lunarDate) {
                 selectedDate = date;
               },
             ),
